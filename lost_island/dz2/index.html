@@ -1,60 +1,55 @@
 <!DOCTYPE html>
 <html lang="uk">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>VR-сцена Дубровін</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  </head>
-  <body>
-    <a-scene>
-      <!-- Попередньо завантажені ресурси -->
-      <a-assets>
-        <!-- Шрифт для кирилиці (згенеруй і поклади разом із index.html) -->
-        <a-asset-item id="dubrovinFont" src="dubrovin-msdf.json"></a-asset-item>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VR-сцена Дубровін</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+</head>
+<body>
+  <a-scene>
+    <!-- Ресурси -->
+    <a-assets>
+      <!-- Шрифт (повинен бути у репозиторії!) -->
+      <a-asset-item id="dubrovinFont" src="dubrovin-msdf.json"></a-asset-item>
+      <img id="fruit" crossorigin="anonymous"
+           src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/illustration/758px-Canestra_di_frutta_(Caravaggio).jpg">
+      <a-asset-item id="duckModel"
+                    src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Duck/glTF-Binary/Duck.glb">
+      </a-asset-item>
+    </a-assets>
 
-        <!-- Текстура -->
-        <img id="fruit" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/illustration/758px-Canestra_di_frutta_(Caravaggio).jpg" crossorigin="anonymous" />
+    <!-- Фон -->
+    <a-sky color="#87CEEB"></a-sky>
 
-        <!-- 3D модель качки -->
-        <a-asset-item id="duckModel" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Duck/glTF-Binary/Duck.glb"></a-asset-item>
-      </a-assets>
+    <!-- Площина з текстурою -->
+    <a-plane src="#fruit" width="7" height="7" rotation="-55 0 0"
+             position="-2 -2 -5"></a-plane>
 
-      <!-- Небо -->
-      <a-sky color="#87CEEB"></a-sky>
+    <!-- Біла площина для тексту -->
+    <a-plane width="9" height="2" position="0 1 -6" color="white"></a-plane>
 
-      <!-- Текстурована площина -->
-      <a-plane src="#fruit" width="7" height="7" rotation="-55 0 0" position="-2 -2 -5"></a-plane>
+    <!-- Текст з шрифтом -->
+    <a-text value="Вітаємо, Дубровін!" font="#dubrovinFont" negate="false"
+            color="black" width="10" position="-3.5 1 -5.9"
+            scale="1.5 1.5 1.5"></a-text>
 
-      <!-- Площина з текстом -->
-      <a-plane width="9" height="2" position="0 1 -6" color="white"></a-plane>
+    <!-- Анімований тор -->
+    <a-torus position="-2 1 -5" color="green" radius="1.2"
+             animation="property: components.material.material.color; type: color; from: green; to: red; loop: true; dur: 10000">
+    </a-torus>
 
-      <!-- Текст -->
-      <a-text value="Вітаємо, Дубровін!" 
-              font="#dubrovinFont" 
-              negate="false"
-              color="black" 
-              width="10" 
-              position="-3.5 1 -5.9" 
-              scale="1.5 1.5 1.5">
-      </a-text>
+    <!-- Два циліндри -->
+    <a-cylinder color="yellow" height="2" radius="0.05" position="-2 -1 -5"></a-cylinder>
+    <a-cylinder color="blue" height="2" radius="0.05" position="-3 -1 -5"></a-cylinder>
 
-      <!-- Зелений тор з анімацією кольору -->
-      <a-torus position="-2 1 -5" color="green" radius="1.2"
-               animation="property: components.material.material.color; type: color; from: green; to: red; loop: true; dur: 10000">
-      </a-torus>
+    <!-- Анімований торус-кнот -->
+    <a-torus-knot color="orange" radius="1.2" position="-3 1 -5"
+                  animation="property:rotation; to: 0 0 360; loop:true; dur:10000">
+    </a-torus-knot>
 
-      <!-- Циліндри під тором -->
-      <a-cylinder color="yellow" height="2" radius="0.05" position="-2 -1 -5"></a-cylinder>
-      <a-cylinder color="blue" height="2" radius="0.05" position="-3 -1 -5"></a-cylinder>
-
-      <!-- Тороподібна фігура з анімацією -->
-      <a-torus-knot color="orange" radius="1.2" position="-3 1 -5"
-                    animation="property:rotation; to: 0 0 360; loop:true; dur:10000">
-      </a-torus-knot>
-
-      <!-- 3D модель качки -->
-      <a-gltf-model src="#duckModel" position="2 0 -5" scale="0.5 0.5 0.5"></a-gltf-model>
-    </a-scene>
-  </body>
+    <!-- 3D модель качки -->
+    <a-gltf-model src="#duckModel" position="2 0 -5" scale="0.5 0.5 0.5"></a-gltf-model>
+  </a-scene>
+</body>
 </html>
