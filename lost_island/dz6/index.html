@@ -39,6 +39,7 @@
     const infoText = document.querySelector("#text-info");
 
     function getWorldPosition(marker) {
+      if (!marker) return new THREE.Vector3();  // Перевірка на наявність marker
       const position = new THREE.Vector3();
       marker.object3D.getWorldPosition(position);
       return position;
@@ -57,11 +58,12 @@
     }
 
     function updateCalculations() {
+      // Перевірка, чи існують всі маркери перед виконанням обчислень
       if (
-        markerA.object3D.visible &&
-        markerB.object3D.visible &&
-        markerC.object3D.visible &&
-        markerD.object3D.visible
+        markerA && markerA.object3D && markerA.object3D.visible &&
+        markerB && markerB.object3D && markerB.object3D.visible &&
+        markerC && markerC.object3D && markerC.object3D.visible &&
+        markerD && markerD.object3D && markerD.object3D.visible
       ) {
         const A = getWorldPosition(markerA);
         const B = getWorldPosition(markerB);
