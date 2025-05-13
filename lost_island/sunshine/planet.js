@@ -9,7 +9,7 @@ AFRAME.registerComponent('planet', {
   },
   tick: function (time, timeDelta) {
     const radius = this.data.dist / 1e9;
-    this.angle += (timeDelta / 1000) * 0.1;
+    this.angle += (timeDelta / 1000) * 1;
     const rad = THREE.MathUtils.degToRad(this.angle);
     const x = radius * Math.cos(rad);
     const z = radius * Math.sin(rad);
