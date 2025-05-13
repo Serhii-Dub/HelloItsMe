@@ -1,55 +1,44 @@
+      <a-asset-item id="dubrovinFont" src="dubrovin-msdf.json"></a-asset-item> 
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VR-сцена Дубровін</title>
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VR Сцена</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 </head>
 <body>
-  <a-scene>
-    <!-- Ресурси -->
+
+<a-scene>
+    <!-- Завантаження ресурсів (моделей, текстур, шрифтів) -->
     <a-assets>
-      <!-- Шрифт (повинен бути у репозиторії!) -->
-      <a-asset-item id="dubrovinFont" src="/HelloItsMe/lost_island/dz2/dubrovin-msdf.json"></a-asset-item>
-      <img id="fruit" crossorigin="anonymous"
-           src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/illustration/758px-Canestra_di_frutta_(Caravaggio).jpg">
-      <a-asset-item id="duckModel"
-                    src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Duck/glTF-Binary/Duck.glb">
-      </a-asset-item>
+        <!-- Текстура для фону -->
+        <img id="canestra" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/illustration/758px-Canestra_di_frutta_(Caravaggio).jpg" crossorigin="anonymous">
+        <!-- Модель качки -->
+        <a-asset-item id="duck" src="https://cdn.aframe.io/test-models/models/glTF/Duck.glb"></a-asset-item>
+        <!-- Шрифт для тексту -->
+        <a-asset-item id="dubrovinFont" src="https://raw.githubusercontent.com/SerhiiDub/HelloItsMe/lost_island/dz2/dubrovin-msdf.json"></a-asset-item>
     </a-assets>
 
-    <!-- Фон -->
-    <a-sky color="#87CEEB"></a-sky>
-
-    <!-- Площина з текстурою -->
-    <a-plane src="#fruit" width="7" height="7" rotation="-55 0 0"
-             position="-2 -2 -5"></a-plane>
-
-    <!-- Біла площина для тексту -->
-    <a-plane width="9" height="2" position="0 1 -6" color="white"></a-plane>
-
-    <!-- Текст з шрифтом -->
-    <a-text value="Вітаємо, Дубровін!" font="#dubrovinFont" negate="false"
-            color="black" width="10" position="-3.5 1 -5.9"
-            scale="1.5 1.5 1.5"></a-text>
-
-    <!-- Анімований тор -->
-    <a-torus position="-2 1 -5" color="green" radius="1.2"
-             animation="property: components.material.material.color; type: color; from: green; to: red; loop: true; dur: 10000">
-    </a-torus>
-
-    <!-- Два циліндри -->
+    <!-- Оточення сцени -->
+    <a-sky color="lightblue"></a-sky>
+    
+    <!-- Об'єкти на сцені -->
+    <a-torus position="-2 1 -5" color="green" radius="1.2" animation="property: components.material.material.color; type: color; from: green; to: red; loop: true; dur: 10000"></a-torus>
+    <a-plane src="#canestra" width="7" height="7" rotation="-55 0 0" position="-2 -2 -5" color="purple"></a-plane>
     <a-cylinder color="yellow" height="2" radius="0.05" position="-2 -1 -5"></a-cylinder>
     <a-cylinder color="blue" height="2" radius="0.05" position="-3 -1 -5"></a-cylinder>
+    <a-torus-knot color="orange" radius="1.2" position="-3 1 -5" animation="property: rotation; to: 0 0 360; loop: true; dur: 10000"></a-torus-knot>
+    
+    <!-- Модель качки -->
+    <a-gltf-model src="#duck" position="2 1 -5" scale="0.5 0.5 0.5"></a-gltf-model>
+    
+    <!-- Текст -->
+    <a-text value="Привіт у VR!" color="black" width="10" position="-0.5 1 -6" font="#dubrovinFont"></a-text>
 
-    <!-- Анімований торус-кнот -->
-    <a-torus-knot color="orange" radius="1.2" position="-3 1 -5"
-                  animation="property:rotation; to: 0 0 360; loop:true; dur:10000">
-    </a-torus-knot>
+    <!-- Освітлення -->
+    <a-light type="point" intensity="1.5" position="4 0 0"></a-light>
+</a-scene>
 
-    <!-- 3D модель качки -->
-    <a-gltf-model src="#duckModel" position="2 0 -5" scale="0.5 0.5 0.5"></a-gltf-model>
-  </a-scene>
 </body>
 </html>
