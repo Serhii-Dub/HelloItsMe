@@ -2,25 +2,96 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>VR Сонячна система Dubrovin</title>
+  <title>Сонячна система у VR</title>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="planet.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+  </style>
 </head>
 <body>
-  <a-scene>
-    <a-sky src="2k_stars_milky_way.jpg"></a-sky>
-    <a-camera position="0 0 300"></a-camera>
 
-    <a-sphere radius="20.510" src="sun.jpg" planet="dist: 0; mass: 1.989e30; name: Sun"></a-sphere>
+<a-scene>
+  <!-- Фонове небо -->
+  <a-sky src="stars.jpg"></a-sky>
 
-    <a-sphere radius="2.4" src="mercury.jpg" planet="dist: 57.91e9; mass: 3.3011e23; name: Mercury" position="30 0 0"></a-sphere>
-    <a-sphere radius="6.05" src="venus.jpg" planet="dist: 108.2e9; mass: 4.876e24; name: Venus" position="60 0 0"></a-sphere>
-    <a-sphere radius="6.37" src="earth.jpg" planet="dist: 149.6e9; mass: 6e24; name: Earth" position="90 0 0"></a-sphere>
-    <a-sphere radius="3.39" src="mars.jpg" planet="dist: 227.9e9; mass: 6.4e23; name: Mars" position="120 0 0"></a-sphere>
-    <a-sphere radius="69.9" src="jupiter.jpg" planet="dist: 778.3e9; mass: 1.898e27; name: Jupiter" position="170 0 0"></a-sphere>
-    <a-sphere radius="58.2" src="saturn.jpg" planet="dist: 1.4e12; mass: 5.68e26; name: Saturn" position="230 0 0"></a-sphere>
-    <a-sphere radius="25.3" src="uranus.jpg" planet="dist: 2.87e12; mass: 8.68e25; name: Uranus" position="270 0 0"></a-sphere>
-    <a-sphere radius="24.6" src="neptune.jpg" planet="dist: 4.5e12; mass: 1.02e26; name: Neptune" position="310 0 0"></a-sphere>
-  </a-scene>
+  <!-- Камера -->
+  <a-camera position="0 0 300"></a-camera>
+
+  <!-- Сонце -->
+  <a-sphere 
+    radius="20.51" 
+    color="yellow" 
+    src="sun.jpg"
+    planet="dist: 0; mass: 1.989e30; name: Sun"
+    spin="speed: 0.2">
+  </a-sphere>
+
+  <!-- Меркурій -->
+  <a-sphere 
+    radius="2.4" 
+    src="mercury.jpg"
+    planet="dist: 57.91e9; mass: 3.3011e23; name: Mercury"
+    spin="speed: 1.2">
+  </a-sphere>
+
+  <!-- Венера -->
+  <a-sphere 
+    radius="6.0" 
+    src="venus.jpg"
+    planet="dist: 108.2e9; mass: 4.876e24; name: Venus"
+    spin="speed: 0.8">
+  </a-sphere>
+
+  <!-- Земля -->
+  <a-sphere 
+    radius="6.4" 
+    src="earth.jpg"
+    planet="dist: 149.6e9; mass: 6e24; name: Earth"
+    spin="speed: 1">
+  </a-sphere>
+
+  <!-- Марс -->
+  <a-sphere 
+    radius="3.4" 
+    src="mars.jpg"
+    planet="dist: 227.9e9; mass: 6.4e23; name: Mars"
+    spin="speed: 0.9">
+  </a-sphere>
+
+  <!-- Юпітер -->
+  <a-sphere 
+    radius="12" 
+    src="jupiter.jpg"
+    planet="dist: 778.3e9; mass: 1.9e27; name: Jupiter"
+    spin="speed: 1.5">
+  </a-sphere>
+
+  <!-- Сатурн -->
+  <a-sphere 
+    radius="10" 
+    src="saturn.jpg"
+    planet="dist: 1.4e12; mass: 5.7e26; name: Saturn"
+    spin="speed: 1.2">
+  </a-sphere>
+
+  <!-- Уран -->
+  <a-sphere 
+    radius="8" 
+    src="uranus.jpg"
+    planet="dist: 2.87e12; mass: 8.7e25; name: Uranus"
+    spin="speed: 1.1">
+  </a-sphere>
+
+  <!-- Нептун -->
+  <a-sphere 
+    radius="7.8" 
+    src="neptune.jpg"
+    planet="dist: 4.5e12; mass: 1e26; name: Neptune"
+    spin="speed: 1">
+  </a-sphere>
+
+</a-scene>
+
 </body>
 </html>
