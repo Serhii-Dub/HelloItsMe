@@ -17,9 +17,9 @@ AFRAME.registerComponent('planet', {
   }
 });
 
-AFRAME.registerComponent("spin", {
+AFRAME.registerComponent('spin', {
   schema: {
-    speed: { type: "number", default: 1 }
+    speed: {type: 'number', default: 1}
   },
   tick: function (time, timeDelta) {
     this.el.object3D.rotation.y += this.data.speed * timeDelta / 1000;
