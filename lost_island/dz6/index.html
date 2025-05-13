@@ -30,67 +30,70 @@
       <a-entity id="text-info" position="0 0 0" text="value: Зачекайте...; color: black; width: 4;"></a-entity>
     </a-scene>
 
-    <script>
-      const markerA = document.querySelector("#markerA");
-      const markerB = document.querySelector("#markerB");
-      const markerC = document.querySelector("#markerC");
-      const markerD = document.querySelector("#markerD");
-      const infoText = document.querySelector("#text-info");
+   <script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const markerA = document.querySelector("#markerA");
+    const markerB = document.querySelector("#markerB");
+    const markerC = document.querySelector("#markerC");
+    const markerD = document.querySelector("#markerD");
+    const infoText = document.querySelector("#text-info");
 
-      function getWorldPosition(marker) {
-        const position = new THREE.Vector3();
-        marker.object3D.getWorldPosition(position);
-        return position;
+    function getWorldPosition(marker) {
+      const position = new THREE.Vector3();
+      marker.object3D.getWorldPosition(position);
+      return position;
+    }
+
+    function distance(p1, p2) {
+      return p1.distanceTo(p2);
+    }
+
+    function triangleArea(a, b, c) {
+      const ab = distance(a, b);
+      const bc = distance(b, c);
+      const ca = distance(c, a);
+      const s = (ab + bc + ca) / 2;
+      return Math.sqrt(s * (s - ab) * (s - bc) * (s - ca));
+    }
+
+    function updateCalculations() {
+      if (
+        markerA.object3D.visible &&
+        markerB.object3D.visible &&
+        markerC.object3D.visible &&
+        markerD.object3D.visible
+      ) {
+        const A = getWorldPosition(markerA);
+        const B = getWorldPosition(markerB);
+        const C = getWorldPosition(markerC);
+        const D = getWorldPosition(markerD);
+
+        const perim =
+          distance(A, B) +
+          distance(B, C) +
+          distance(C, D) +
+          distance(D, A);
+
+        const areaABC = triangleArea(A, B, C);
+        const areaBCD = triangleArea(B, C, D);
+        const areaCDA = triangleArea(C, D, A);
+        const areaDAB = triangleArea(D, A, B);
+
+        const message = `Периметр: ${perim.toFixed(2)} м\n` +
+          `Площа ∆ABC: ${areaABC.toFixed(4)} м²\n` +
+          `Площа ∆BCD: ${areaBCD.toFixed(4)} м²\n` +
+          `Площа ∆CDA: ${areaCDA.toFixed(4)} м²\n` +
+          `Площа ∆DAB: ${areaDAB.toFixed(4)} м²`;
+
+        infoText.setAttribute("text", "value", message);
+      } else {
+        infoText.setAttribute("text", "value", "Очікуємо всі 4 маркери...");
       }
+    }
 
-      function distance(p1, p2) {
-        return p1.distanceTo(p2);
-      }
+    setInterval(updateCalculations, 1000);
+  });
+</script>
 
-      function triangleArea(a, b, c) {
-        const ab = distance(a, b);
-        const bc = distance(b, c);
-        const ca = distance(c, a);
-        const s = (ab + bc + ca) / 2;
-        return Math.sqrt(s * (s - ab) * (s - bc) * (s - ca));
-      }
-
-      function updateCalculations() {
-        if (
-          markerA.object3D.visible &&
-          markerB.object3D.visible &&
-          markerC.object3D.visible &&
-          markerD.object3D.visible
-        ) {
-          const A = getWorldPosition(markerA);
-          const B = getWorldPosition(markerB);
-          const C = getWorldPosition(markerC);
-          const D = getWorldPosition(markerD);
-
-          const perim =
-            distance(A, B) +
-            distance(B, C) +
-            distance(C, D) +
-            distance(D, A);
-
-          const areaABC = triangleArea(A, B, C);
-          const areaBCD = triangleArea(B, C, D);
-          const areaCDA = triangleArea(C, D, A);
-          const areaDAB = triangleArea(D, A, B);
-
-          const message = `Периметр: ${perim.toFixed(2)} м\n` +
-            `Площа ∆ABC: ${areaABC.toFixed(4)} м²\n` +
-            `Площа ∆BCD: ${areaBCD.toFixed(4)} м²\n` +
-            `Площа ∆CDA: ${areaCDA.toFixed(4)} м²\n` +
-            `Площа ∆DAB: ${areaDAB.toFixed(4)} м²`;
-
-          infoText.setAttribute("text", "value", message);
-        } else {
-          infoText.setAttribute("text", "value", "Очікуємо всі 4 маркери...");
-        }
-      }
-
-      setInterval(updateCalculations, 1000);
-    </script>
   </body>
 </html>
