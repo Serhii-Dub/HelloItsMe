@@ -10,6 +10,7 @@
         body {
             margin: 0;
             overflow: hidden;
+            font-family: Arial, sans-serif;
         }
         a-scene {
             width: 100%;
@@ -23,7 +24,6 @@
             color: white;
             padding: 15px;
             border-radius: 10px;
-            font-family: Arial, sans-serif;
             max-width: 300px;
             z-index: 10000;
         }
@@ -35,10 +35,18 @@
             border-radius: 0.2em;
             white-space: nowrap;
         }
+        #debug-info {
+            font-size: 0.8em;
+            color: #ff9900;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <a-scene mindar-image="imageTargetSrc: targets.mind; autoStart: true;" vr-mode-ui="enabled: false" renderer="colorManagement: true;">
+    <a-scene mindar-image="imageTargetSrc: targets.mind; autoStart: true;" 
+             vr-mode-ui="enabled: false" 
+             renderer="colorManagement: true;"
+             loading-screen="enabled: false;">
 
         <a-assets>
             <img id="markerA" src="markerA.png">
@@ -50,22 +58,22 @@
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <!-- Маркери -->
-        <a-entity mindar-image-target="targetIndex: 0" id="markerA">
+        <a-entity mindar-image-target="targetIndex: 0" id="markerA-entity">
             <a-plane src="#markerA" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
             <a-entity position="0 0.01 0" text="value: A; align: center; color: white; width: 5" class="marker-label"></a-entity>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 1" id="markerB">
+        <a-entity mindar-image-target="targetIndex: 1" id="markerB-entity">
             <a-plane src="#markerB" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
             <a-entity position="0 0.01 0" text="value: B; align: center; color: white; width: 5" class="marker-label"></a-entity>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 2" id="markerC">
+        <a-entity mindar-image-target="targetIndex: 2" id="markerC-entity">
             <a-plane src="#markerC" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
             <a-entity position="0 0.01 0" text="value: C; align: center; color: white; width: 5" class="marker-label"></a-entity>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 3" id="markerD">
+        <a-entity mindar-image-target="targetIndex: 3" id="markerD-entity">
             <a-plane src="#markerD" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
             <a-entity position="0 0.01 0" text="value: D; align: center; color: white; width: 5" class="marker-label"></a-entity>
         </a-entity>
@@ -78,62 +86,107 @@
             <h3>Геометричні обчислення</h3>
             <p id="perimeter">Периметр: -</p>
             <p id="areas">Площі трикутників: -</p>
-            <p id="debug">Статус: Завантаження...</p>
+            <p id="debug-info">Статус: Ініціалізація...</p>
         </div>
     </a-scene>
 
     <script>
-        // Об'єкт для відстеження маркерів
-        const markers = {
-            A: { entity: null, position: null, detected: false },
-            B: { entity: null, position: null, detected: false },
-            C: { entity: null, position: null, detected: false },
-            D: { entity: null, position: null, detected: false }
+        // Глобальний об'єкт для відстеження стану
+        const ARState = {
+            markers: {
+                A: { entity: null, position: null, detected: false },
+                B: { entity: null, position: null, detected: false },
+                C: { entity: null, position: null, detected: false },
+                D: { entity: null, position: null, detected: false }
+            },
+            sceneReady: false,
+            trackingStarted: false
         };
 
-        // Ініціалізація сцени
-        document.querySelector('a-scene').addEventListener('loaded', function() {
-            // Отримуємо посилання на маркери
-            markers.A.entity = document.getElementById('markerA');
-            markers.B.entity = document.getElementById('markerB');
-            markers.C.entity = document.getElementById('markerC');
-            markers.D.entity = document.getElementById('markerD');
+        // Функція ініціалізації сцени
+        function initScene() {
+            const scene = document.querySelector('a-scene');
             
-            document.getElementById('debug').textContent = "Статус: Очікування маркерів...";
+            scene.addEventListener('loaded', function() {
+                // Отримуємо посилання на маркери
+                ARState.markers.A.entity = document.getElementById('markerA-entity');
+                ARState.markers.B.entity = document.getElementById('markerB-entity');
+                ARState.markers.C.entity = document.getElementById('markerC-entity');
+                ARState.markers.D.entity = document.getElementById('markerD-entity');
+                
+                // Перевіряємо, чи всі маркери знайдені
+                const allMarkersFound = Object.values(ARState.markers).every(m => m.entity);
+                
+                if (!allMarkersFound) {
+                    updateDebugInfo("Помилка: Не всі маркери знайдені в DOM");
+                    console.error("Деякі маркери не знайдені:", ARState.markers);
+                    return;
+                }
+                
+                ARState.sceneReady = true;
+                updateDebugInfo("Сцена готова. Очікування маркерів...");
+                
+                // Запускаємо перевірку маркерів
+                setInterval(checkMarkers, 100);
+            });
             
-            // Запускаємо перевірку маркерів
-            setInterval(checkMarkers, 100);
-        });
+            // Додаткові слухачі подій MindAR
+            scene.addEventListener('mindar-target-found', event => {
+                if (!ARState.trackingStarted) {
+                    ARState.trackingStarted = true;
+                    updateDebugInfo("Відстеження розпочато");
+                }
+            });
+            
+            scene.addEventListener('mindar-target-lost', event => {
+                updateDebugInfo("Маркери втрачено. Пошук...");
+            });
+        }
 
-        // Функція для перевірки стану маркерів
+        // Функція перевірки стану маркерів
         function checkMarkers() {
+            if (!ARState.sceneReady) return;
+            
             let anyDetected = false;
+            let detectedCount = 0;
             
             // Перевіряємо кожен маркер
-            for (const [key, marker] of Object.entries(markers)) {
-                if (marker.entity && marker.entity.object3D.visible) {
-                    const position = new THREE.Vector3();
-                    marker.entity.object3D.getWorldPosition(position);
+            for (const [key, marker] of Object.entries(ARState.markers)) {
+                try {
+                    const entity = marker.entity;
                     
-                    marker.position = position;
-                    marker.detected = true;
-                    anyDetected = true;
-                } else {
+                    // Перевірка наявності та видимості маркера
+                    if (entity && entity.object3D && entity.object3D.visible) {
+                        const position = new THREE.Vector3();
+                        entity.object3D.getWorldPosition(position);
+                        
+                        marker.position = position;
+                        marker.detected = true;
+                        anyDetected = true;
+                        detectedCount++;
+                    } else {
+                        marker.detected = false;
+                        marker.position = null;
+                    }
+                } catch (error) {
+                    console.error(`Помилка при обробці маркера ${key}:`, error);
                     marker.detected = false;
                     marker.position = null;
                 }
             }
             
+            // Оновлюємо візуалізацію
             if (anyDetected) {
-                updateVisualization();
+                updateLines();
                 updateCalculations();
-            } else {
-                document.getElementById('debug').textContent = "Статус: Маркери не виявлені";
+                updateDebugInfo(`Виявлено маркерів: ${detectedCount}/4`);
+            } else if (ARState.trackingStarted) {
+                updateDebugInfo("Маркери не виявлені. Пошук...");
             }
         }
 
-        // Оновлення візуалізації (лінії)
-        function updateVisualization() {
+        // Функція оновлення ліній між маркерами
+        function updateLines() {
             const linesContainer = document.getElementById('lines');
             linesContainer.innerHTML = '';
             
@@ -142,11 +195,15 @@
                 ['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A']
             ];
             
-            connections.forEach(([start, end]) => {
-                if (markers[start].detected && markers[end].detected) {
-                    const p1 = markers[start].position;
-                    const p2 = markers[end].position;
+            connections.forEach(([startKey, endKey]) => {
+                const startMarker = ARState.markers[startKey];
+                const endMarker = ARState.markers[endKey];
+                
+                if (startMarker.detected && endMarker.detected) {
+                    const p1 = startMarker.position;
+                    const p2 = endMarker.position;
                     
+                    // Обчислюємо параметри лінії
                     const length = Math.sqrt(
                         Math.pow(p2.x - p1.x, 2) + 
                         Math.pow(p2.y - p1.y, 2) + 
@@ -162,6 +219,7 @@
                     // Напрямок лінії
                     const angle = Math.atan2(p2.z - p1.z, p2.x - p1.x) * (180 / Math.PI);
                     
+                    // Створюємо лінію
                     const line = document.createElement('a-entity');
                     line.setAttribute('geometry', {
                         primitive: 'cylinder',
@@ -188,47 +246,48 @@
             });
         }
 
-        // Оновлення обчислень
+        // Функція оновлення обчислень
         function updateCalculations() {
-            const detectedMarkers = Object.values(markers).filter(m => m.detected).length;
+            const detectedCount = Object.values(ARState.markers).filter(m => m.detected).length;
             
-            if (detectedMarkers < 4) {
-                document.getElementById('perimeter').textContent = `Периметр: Виявлено ${detectedMarkers}/4 маркерів`;
+            // Якщо виявлено не всі маркери
+            if (detectedCount < 4) {
+                document.getElementById('perimeter').textContent = `Периметр: Виявлено ${detectedCount}/4 маркерів`;
                 document.getElementById('areas').textContent = "Площі: Потрібно всі 4 маркери";
-                document.getElementById('debug').textContent = `Статус: Виявлено ${detectedMarkers}/4 маркерів`;
                 return;
             }
             
-            // Обчислення периметра
+            // Обчислюємо периметр
             let perimeter = 0;
-            perimeter += distance(markers.A.position, markers.B.position);
-            perimeter += distance(markers.B.position, markers.C.position);
-            perimeter += distance(markers.C.position, markers.D.position);
-            perimeter += distance(markers.D.position, markers.A.position);
+            const sides = [
+                distance(ARState.markers.A.position, ARState.markers.B.position),
+                distance(ARState.markers.B.position, ARState.markers.C.position),
+                distance(ARState.markers.C.position, ARState.markers.D.position),
+                distance(ARState.markers.D.position, ARState.markers.A.position)
+            ];
             
+            perimeter = sides.reduce((sum, side) => sum + side, 0);
             document.getElementById('perimeter').textContent = `Периметр: ${perimeter.toFixed(2)} м`;
             
-            // Обчислення площ трикутників
+            // Обчислюємо площі трикутників
             const triangles = [
-                ['A', 'B', 'C'],
-                ['A', 'B', 'D'],
-                ['A', 'C', 'D'],
-                ['B', 'C', 'D']
+                {name: 'ABC', points: ['A', 'B', 'C']},
+                {name: 'ABD', points: ['A', 'B', 'D']},
+                {name: 'ACD', points: ['A', 'C', 'D']},
+                {name: 'BCD', points: ['B', 'C', 'D']}
             ];
             
             let areasText = "Площі трикутників:<br>";
-            
-            triangles.forEach(([a, b, c]) => {
+            triangles.forEach(triangle => {
                 const area = triangleArea(
-                    markers[a].position,
-                    markers[b].position,
-                    markers[c].position
+                    ARState.markers[triangle.points[0]].position,
+                    ARState.markers[triangle.points[1]].position,
+                    ARState.markers[triangle.points[2]].position
                 );
-                areasText += `${a}${b}${c}: ${area.toFixed(2)} м²<br>`;
+                areasText += `${triangle.name}: ${area.toFixed(2)} м²<br>`;
             });
             
             document.getElementById('areas').innerHTML = areasText;
-            document.getElementById('debug').textContent = "Статус: Усі маркери виявлені";
         }
 
         // Допоміжні функції
@@ -246,8 +305,16 @@
             const ca = distance(c, a);
             
             const s = (ab + bc + ca) / 2;
-            return Math.sqrt(s * (s - ab) * (s - bc) * (s - ca));
+            return Math.sqrt(Math.max(0, s * (s - ab) * (s - bc) * (s - ca)));
         }
+
+        function updateDebugInfo(message) {
+            document.getElementById('debug-info').textContent = message;
+            console.log(message);
+        }
+
+        // Запускаємо сцену при повному завантаженні сторінки
+        window.addEventListener('DOMContentLoaded', initScene);
     </script>
 </body>
 </html>
