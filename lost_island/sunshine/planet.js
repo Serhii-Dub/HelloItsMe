@@ -1,27 +1,23 @@
 AFRAME.registerComponent('planet', {
   schema: {
-    dist: {type: 'number'},
-    mass: {type: 'number'},
-    name: {type: 'string'}
+    dist: {type: 'number'},  // Відстань від Сонця
+    mass: {type: 'number'},  // Масса планети
+    name: {type: 'string'}   // Назва планети
   },
   init: function () {
-    this.angle = Math.random() * 360;
+    this.angle = Math.random() * 360;  // Початковий кут обертання
+    this.orbitRadius = this.data.dist / 1e9;  // Визначаємо орбітальний радіус
   },
   tick: function (time, timeDelta) {
-    const radius = this.data.dist / 1e9;
-    this.angle += (timeDelta / 1000) * 0.1;
-    const rad = THREE.MathUtils.degToRad(this.angle);
-    const x = radius * Math.cos(rad);
-    const z = radius * Math.sin(rad);
-    this.el.setAttribute('position', {x: x, y: 0, z: z});
-  }
-});
+    // Вираховуємо нове положення планети по колу
+    const speed = 0.1;  // Швидкість обертання планети
+    this.angle += (timeDelta / 1000) * speed;
 
-AFRAME.registerComponent('spin', {
-  schema: {
-    speed: {type: 'number', default: 1}
-  },
-  tick: function (time, timeDelta) {
-    this.el.object3D.rotation.y += this.data.speed * timeDelta / 1000;
+    const rad = THREE.MathUtils.degToRad(this.angle);
+    const x = this.orbitRadius * Math.cos(rad);
+    const z = this.orbitRadius * Math.sin(rad);
+
+    // Оновлюємо позицію планети (враховуємо орбіту навколо Сонця)
+    this.el.setAttribute('position', {x: x, y: 0, z: z});
   }
 });
