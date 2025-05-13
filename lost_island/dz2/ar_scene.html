@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="utf-8" />
+    <title>AR-сцена з прізвищем</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #arjsDebugUIContainer { display: none !important; }
+    </style>
+  </head>
+
+  <body>
+    <a-scene embedded arjs>
+      <a-assets>
+        <a-asset-item id="fontDubrovin" src="dubrovin-msdf.json"></a-asset-item>
+        <img id="bird" src="bird.png">
+        <a-asset-item id="duck" src="Duck.glb"></a-asset-item>
+      </a-assets>
+
+      <!-- Використання маркера (по замовчуванню Hiro) -->
+      <a-marker preset="hiro">
+        <!-- Надпис -->
+        <a-text 
+          value="Дубровін" 
+          font="#fontDubrovin"
+          color="black" 
+          negate="false"
+          width="4" 
+          position="-1 1 0">
+        </a-text>
+
+        <!-- Качка -->
+        <a-gltf-model 
+          src="#duck"
+          position="0 0 0"
+          rotation="0 180 0"
+          scale="0.5 0.5 0.5"
+          animation="property:rotation; to: 0 360 0; loop:true; dur:10000">
+        </a-gltf-model>
+
+        <!-- Зображення -->
+        <a-plane 
+          src="#bird" 
+          width="1.5" 
+          height="1"
+          position="0 0.1 -1"
+          rotation="-90 0 0">
+        </a-plane>
+      </a-marker>
+
+      <!-- Камера -->
+      <a-entity camera></a-entity>
+    </a-scene>
+  </body>
+</html>
