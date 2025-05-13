@@ -6,7 +6,6 @@
     <title>AR Чотирикутник на маркерах</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.6.0/math.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -39,7 +38,8 @@
     </style>
 </head>
 <body>
-    <a-scene mindar-image="imageTargetSrc: targets.mind; autoStart: true;" vr-mode-ui="enabled: false">
+    <a-scene mindar-image="imageTargetSrc: targets.mind; autoStart: true;" vr-mode-ui="enabled: false" renderer="colorManagement: true;">
+
         <a-assets>
             <img id="markerA" src="markerA.png">
             <img id="markerB" src="markerB.png">
@@ -49,26 +49,23 @@
 
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <!-- Маркер A -->
-        <a-entity mindar-image-target="targetIndex: 0">
+        <!-- Маркери -->
+        <a-entity mindar-image-target="targetIndex: 0" id="markerA-entity">
             <a-plane src="#markerA" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
             <a-entity position="0 0.01 0" text="value: A; align: center; color: white; width: 5" class="marker-label"></a-entity>
         </a-entity>
 
-        <!-- Маркер B -->
-        <a-entity mindar-image-target="targetIndex: 1">
+        <a-entity mindar-image-target="targetIndex: 1" id="markerB-entity">
             <a-plane src="#markerB" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
             <a-entity position="0 0.01 0" text="value: B; align: center; color: white; width: 5" class="marker-label"></a-entity>
         </a-entity>
 
-        <!-- Маркер C -->
-        <a-entity mindar-image-target="targetIndex: 2">
+        <a-entity mindar-image-target="targetIndex: 2" id="markerC-entity">
             <a-plane src="#markerC" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
             <a-entity position="0 0.01 0" text="value: C; align: center; color: white; width: 5" class="marker-label"></a-entity>
         </a-entity>
 
-        <!-- Маркер D -->
-        <a-entity mindar-image-target="targetIndex: 3">
+        <a-entity mindar-image-target="targetIndex: 3" id="markerD-entity">
             <a-plane src="#markerD" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
             <a-entity position="0 0.01 0" text="value: D; align: center; color: white; width: 5" class="marker-label"></a-entity>
         </a-entity>
@@ -93,15 +90,46 @@
             D: null
         };
 
+        // Функція для отримання позиції маркера
+        function getMarkerPosition(markerId) {
+            const entity = document.getElementById(markerId);
+            if (!entity || !entity.object3D.visible) return null;
+            
+            const position = new THREE.Vector3();
+            entity.object3D.getWorldPosition(position);
+            return position;
+        }
+
         // Функція для оновлення позицій маркерів
         function updateMarkerPositions() {
-            document.querySelectorAll('[mindar-image-target]').forEach((entity, index) => {
-                const position = entity.object3D.position;
-                const markerName = ['A', 'B', 'C', 'D'][index];
-                markerPositions[markerName] = {x: position.x, y: position.y, z: position.z};
-            });
+            markerPositions.A = getMarkerPosition('markerA-entity');
+            markerPositions.B = getMarkerPosition('markerB-entity');
+            markerPositions.C = getMarkerPosition('markerC-entity');
+            markerPositions.D = getMarkerPosition('markerD-entity');
             
             updateLinesAndCalculations();
+        }
+
+        // Функція для відстані між точками
+        function distance(p1, p2) {
+            if (!p1 || !p2) return 0;
+            return Math.sqrt(
+                Math.pow(p2.x - p1.x, 2) + 
+                Math.pow(p2.y - p1.y, 2) + 
+                Math.pow(p2.z - p1.z, 2)
+            );
+        }
+
+        // Функція для площі трикутника за формулою Герона
+        function triangleArea(a, b, c) {
+            const ab = distance(a, b);
+            const bc = distance(b, c);
+            const ca = distance(c, a);
+            
+            if (ab === 0 || bc === 0 || ca === 0) return 0;
+            
+            const s = (ab + bc + ca) / 2;
+            return Math.sqrt(s * (s - ab) * (s - bc) * (s - ca));
         }
 
         // Функція для оновлення ліній та обчислень
@@ -118,41 +146,29 @@
                 return;
             }
             
-            // Масив точок для зручності
-            const points = [
-                markerPositions.A,
-                markerPositions.B,
-                markerPositions.C,
-                markerPositions.D,
-                markerPositions.A // Замикаємо чотирикутник
+            // Відображення ліній між маркерами
+            const connections = [
+                ['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A']
             ];
             
-            // Відображення ліній між маркерами
-            for (let i = 0; i < points.length - 1; i++) {
-                const start = points[i];
-                const end = points[i+1];
+            connections.forEach(([start, end]) => {
+                const p1 = markerPositions[start];
+                const p2 = markerPositions[end];
                 
-                // Обчислюємо середину між точками
+                const length = distance(p1, p2);
                 const midpoint = {
-                    x: (start.x + end.x) / 2,
-                    y: (start.y + end.y) / 2,
-                    z: (start.z + end.z) / 2
+                    x: (p1.x + p2.x) / 2,
+                    y: (p1.y + p2.y) / 2,
+                    z: (p1.z + p2.z) / 2
                 };
                 
-                // Обчислюємо довжину лінії
-                const length = Math.sqrt(
-                    Math.pow(end.x - start.x, 2) + 
-                    Math.pow(end.y - start.y, 2) + 
-                    Math.pow(end.z - start.z, 2)
+                // Напрямок лінії
+                const direction = new THREE.Vector3().subVectors(p2, p1).normalize();
+                const rotation = new THREE.Euler().setFromUnitVectors(
+                    new THREE.Vector3(0, 1, 0),
+                    direction
                 );
                 
-                // Обчислюємо кут нахилу лінії
-                const angle = Math.atan2(
-                    end.z - start.z,
-                    end.x - start.x
-                ) * (180 / Math.PI);
-                
-                // Створюємо лінію
                 const line = document.createElement('a-entity');
                 line.setAttribute('geometry', {
                     primitive: 'cylinder',
@@ -165,33 +181,24 @@
                 });
                 line.setAttribute('position', {
                     x: midpoint.x,
-                    y: midpoint.y + 0.01, // Трохи вище маркерів
+                    y: midpoint.y + 0.01,
                     z: midpoint.z
                 });
                 line.setAttribute('rotation', {
-                    x: 0,
-                    y: -angle + 90,
-                    z: 0
+                    x: rotation.x * (180 / Math.PI),
+                    y: rotation.y * (180 / Math.PI),
+                    z: rotation.z * (180 / Math.PI)
                 });
                 
                 linesContainer.appendChild(line);
-            }
+            });
             
             // Обчислення периметра
             let perimeter = 0;
-            const sides = [];
-            
-            for (let i = 0; i < 4; i++) {
-                const start = points[i];
-                const end = points[(i+1)%4];
-                const sideLength = Math.sqrt(
-                    Math.pow(end.x - start.x, 2) + 
-                    Math.pow(end.y - start.y, 2) + 
-                    Math.pow(end.z - start.z, 2)
-                );
-                sides.push(sideLength);
-                perimeter += sideLength;
-            }
+            perimeter += distance(markerPositions.A, markerPositions.B);
+            perimeter += distance(markerPositions.B, markerPositions.C);
+            perimeter += distance(markerPositions.C, markerPositions.D);
+            perimeter += distance(markerPositions.D, markerPositions.A);
             
             document.getElementById('perimeter').textContent = `Периметр: ${perimeter.toFixed(2)} м`;
             
@@ -205,43 +212,23 @@
             
             let areasText = "Площі трикутників:<br>";
             
-            triangles.forEach(triangle => {
-                const [a, b, c] = triangle;
-                const p1 = markerPositions[a];
-                const p2 = markerPositions[b];
-                const p3 = markerPositions[c];
-                
-                // Довжини сторін трикутника
-                const ab = Math.sqrt(
-                    Math.pow(p2.x - p1.x, 2) + 
-                    Math.pow(p2.y - p1.y, 2) + 
-                    Math.pow(p2.z - p1.z, 2)
+            triangles.forEach(([a, b, c]) => {
+                const area = triangleArea(
+                    markerPositions[a],
+                    markerPositions[b],
+                    markerPositions[c]
                 );
-                
-                const bc = Math.sqrt(
-                    Math.pow(p3.x - p2.x, 2) + 
-                    Math.pow(p3.y - p2.y, 2) + 
-                    Math.pow(p3.z - p2.z, 2)
-                );
-                
-                const ca = Math.sqrt(
-                    Math.pow(p1.x - p3.x, 2) + 
-                    Math.pow(p1.y - p3.y, 2) + 
-                    Math.pow(p1.z - p3.z, 2)
-                );
-                
-                // Формула Герона
-                const s = (ab + bc + ca) / 2;
-                const area = Math.sqrt(s * (s - ab) * (s - bc) * (s - ca));
-                
                 areasText += `${a}${b}${c}: ${area.toFixed(2)} м²<br>`;
             });
             
             document.getElementById('areas').innerHTML = areasText;
         }
 
-        // Оновлюємо позиції кожні 100 мс
-        setInterval(updateMarkerPositions, 100);
+        // Оновлюємо позиції при зміні сцени
+        const scene = document.querySelector('a-scene');
+        scene.addEventListener('renderstart', function() {
+            setInterval(updateMarkerPositions, 100);
+        });
     </script>
 </body>
 </html>
