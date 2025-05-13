@@ -2,24 +2,27 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AR Сонячна система</title>
+  <!-- Оновлені бібліотеки (важливо саме ці версії) -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
   <script src="planet.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
     a-scene { width: 100%; height: 100vh; }
-    .mindar-ui-overlay { display: none; } /* Приховати зайві елементи UI */
+    .arjs-loader { display: none; } /* Приховуємо завантажувач */
   </style>
 </head>
 <body>
-  <a-scene mindar-image="imageTargetSrc: marker.mind; uiScanning: no; uiLoading: no;" 
-           color-space="sRGB" 
-           renderer="colorManagement: true, physicallyCorrectLights" 
-           vr-mode-ui="enabled: false" 
-           device-orientation-permission-ui="enabled: false">
-
+  <!-- Сцена з налаштуваннями AR -->
+  <a-scene 
+    mindar-image="imageTargetSrc: marker.mind; autoStart: true; uiLoading: no; uiScanning: no;"
+    vr-mode-ui="enabled: false"
+    renderer="colorManagement: true"
+  >
     <a-assets>
+      <!-- Текстури планет (переконайся, що файли існують у папці) -->
       <img id="sun" src="sun.jpg">
       <img id="mercury" src="mercury.jpg">
       <img id="venus" src="venus.jpg">
@@ -31,8 +34,10 @@
       <img id="neptune" src="neptune.jpg">
     </a-assets>
 
+    <!-- Камера -->
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
+    <!-- Об'єкти, які з'являться при розпізнаванні маркера -->
     <a-entity mindar-image-target="targetIndex: 0">
       <!-- Сонце -->
       <a-sphere radius="0.4" src="#sun" planet="dist: 0; mass: 1.989e30; name: Sun" spin="speed: 0.2"></a-sphere>
@@ -48,5 +53,17 @@
       <a-sphere radius="0.12" src="#neptune" planet="dist: 4.5; mass: 1e26; name: Neptune" spin="speed: 1"></a-sphere>
     </a-entity>
   </a-scene>
+
+  <!-- Скрипт для перевірки завантаження MindAR -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!window.MINDAR || !window.MINDAR.IMAGE) {
+        alert("Помилка: MindAR не завантажився. Перевірте підключення до інтернету або консоль для деталей.");
+        console.error("MindAR not loaded:", window.MINDAR);
+      } else {
+        console.log("MindAR успішно завантажений!");
+      }
+    });
+  </script>
 </body>
 </html>
