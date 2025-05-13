@@ -9,18 +9,17 @@
   <style>
     body { margin: 0; overflow: hidden; }
     a-scene { width: 100%; height: 100vh; }
+    .mindar-ui-overlay { display: none; } /* Приховати зайві елементи UI */
   </style>
 </head>
 <body>
-  <a-scene mindar-image="imageTargetSrc: marker.mind" 
+  <a-scene mindar-image="imageTargetSrc: marker.mind; uiScanning: no; uiLoading: no;" 
            color-space="sRGB" 
            renderer="colorManagement: true, physicallyCorrectLights" 
            vr-mode-ui="enabled: false" 
-           device-orientation-permission-ui="enabled: true"
-           embedded>
+           device-orientation-permission-ui="enabled: false">
 
     <a-assets>
-      <!-- Локальні текстури -->
       <img id="sun" src="sun.jpg">
       <img id="mercury" src="mercury.jpg">
       <img id="venus" src="venus.jpg">
