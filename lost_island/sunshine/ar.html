@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>AR Сонячна система</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    a-scene { width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+  <a-scene mindar-image="imageTargetSrc: marker.mind;" embedded>
+    <a-assets>
+      <img id="sun" src="sun.jpg">
+      <img id="mercury" src="mercury.jpg">
+      <img id="venus" src="venus.jpg">
+      <img id="earth" src="earth.jpg">
+      <img id="mars" src="mars.jpg">
+      <img id="jupiter" src="jupiter.jpg">
+      <img id="saturn" src="saturn.jpg">
+      <img id="uranus" src="uranus.jpg">
+      <img id="neptune" src="neptune.jpg">
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <a-entity mindar-image-target="targetIndex: 0">
+      <a-sphere radius="0.3" src="#sun" position="0 0 0"></a-sphere>
+      <a-sphere radius="0.05" src="#mercury" position="0.5 0 0"></a-sphere>
+      <a-sphere radius="0.07" src="#venus" position="0.8 0 0"></a-sphere>
+      <a-sphere radius="0.08" src="#earth" position="1.1 0 0"></a-sphere>
+      <a-sphere radius="0.06" src="#mars" position="1.4 0 0"></a-sphere>
+      <a-sphere radius="0.2" src="#jupiter" position="1.8 0 0"></a-sphere>
+      <a-sphere radius="0.18" src="#saturn" position="2.2 0 0"></a-sphere>
+      <a-sphere radius="0.12" src="#uranus" position="2.5 0 0"></a-sphere>
+      <a-sphere radius="0.11" src="#neptune" position="2.8 0 0"></a-sphere>
+    </a-entity>
+  </a-scene>
+</body>
+</html>
