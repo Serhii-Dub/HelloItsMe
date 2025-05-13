@@ -1,57 +1,60 @@
 <!DOCTYPE html>
 <html lang="uk">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>VR-сцена з прізвищем</title>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VR-сцена Дубровін</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Попередньо завантажені ресурси -->
+      <a-assets>
+        <!-- Шрифт для кирилиці (згенеруй і поклади разом із index.html) -->
+        <a-asset-item id="dubrovinFont" src="dubrovin-msdf.json"></a-asset-item>
 
-  <!-- A-Frame -->
-  <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
+        <!-- Текстура -->
+        <img id="fruit" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/illustration/758px-Canestra_di_frutta_(Caravaggio).jpg" crossorigin="anonymous" />
 
-  <!-- RemoteJS (не обов'язково, можна видалити, якщо не потрібне логування) -->
-  <script data-consolejs-channel="79e296cd-0ee2-0b3a-8417-0e384d2abddf" src="https://remotejs.com/agent/agent.js"></script>
-</head>
-<body>
-  <a-scene>
-    <!-- Завантаження ресурсів -->
-    <a-assets>
-      <a-asset-item id="dubrovinFont" src="dubrovin-msdf.json"></a-asset-item>
-      <img id="floorTexture" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/illustration/758px-Canestra_di_frutta_(Caravaggio).jpg">
-      <!-- Якщо матимеш свою модель -->
-      <a-asset-item id="sampleModel" src="https://cdn.aframe.io/test-models/models/glTF/Duck.glb"></a-asset-item>
-    </a-assets>
+        <!-- 3D модель качки -->
+        <a-asset-item id="duckModel" src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/Duck/glTF-Binary/Duck.glb"></a-asset-item>
+      </a-assets>
 
-    <!-- Фон -->
-    <a-sky color="grey"></a-sky>
+      <!-- Небо -->
+      <a-sky color="#87CEEB"></a-sky>
 
-    <!-- Текстурована площина -->
-    <a-plane src="#floorTexture" width="7" height="7" rotation="-55 0 0" position="-2 -2 -5" color="purple"></a-plane>
+      <!-- Текстурована площина -->
+      <a-plane src="#fruit" width="7" height="7" rotation="-55 0 0" position="-2 -2 -5"></a-plane>
 
-    <!-- Тор з анімацією -->
-    <a-torus position="-2 1 -5" color="green" radius="1.2"
-             animation="property: components.material.material.color;
-                        type: color; from: green; to: red; loop: true; dur: 10000">
-    </a-torus>
+      <!-- Площина з текстом -->
+      <a-plane width="9" height="2" position="0 1 -6" color="white"></a-plane>
 
-    <!-- Тороподібна фігура з обертанням -->
-    <a-torus-knot color="orange" radius="1.2" position="-3 1 -5"
-                  animation="property: rotation; to: 0 360 0; loop: true; dur: 10000">
-    </a-torus-knot>
+      <!-- Текст -->
+      <a-text value="Вітаємо, Дубровін!" 
+              font="#dubrovinFont" 
+              negate="false"
+              color="black" 
+              width="10" 
+              position="-3.5 1 -5.9" 
+              scale="1.5 1.5 1.5">
+      </a-text>
 
-    <!-- Додаткова площина -->
-    <a-plane width="9" height="2" position="3 1 -9" color="white"></a-plane>
+      <!-- Зелений тор з анімацією кольору -->
+      <a-torus position="-2 1 -5" color="green" radius="1.2"
+               animation="property: components.material.material.color; type: color; from: green; to: red; loop: true; dur: 10000">
+      </a-torus>
 
-    <!-- Напис українською зі шрифтом -->
-    <a-text value="Дубровін" color="black" width="10" position="-0.5 1 -6"
-            font="#dubrovinFont" negate="false" scale="1.5 1.5 1.5">
-    </a-text>
+      <!-- Циліндри під тором -->
+      <a-cylinder color="yellow" height="2" radius="0.05" position="-2 -1 -5"></a-cylinder>
+      <a-cylinder color="blue" height="2" radius="0.05" position="-3 -1 -5"></a-cylinder>
 
-    <!-- Довільна 3D-модель -->
-    <a-entity gltf-model="#sampleModel" scale="0.05 0.05 0.05" position="0 0 -4"></a-entity>
-  </a-scene>
+      <!-- Тороподібна фігура з анімацією -->
+      <a-torus-knot color="orange" radius="1.2" position="-3 1 -5"
+                    animation="property:rotation; to: 0 0 360; loop:true; dur:10000">
+      </a-torus-knot>
 
-  <script>
-    console.log("Сцена завантажена");
-  </script>
-</body>
+      <!-- 3D модель качки -->
+      <a-gltf-model src="#duckModel" position="2 0 -5" scale="0.5 0.5 0.5"></a-gltf-model>
+    </a-scene>
+  </body>
 </html>
