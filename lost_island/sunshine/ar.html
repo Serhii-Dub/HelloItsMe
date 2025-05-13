@@ -3,14 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AR Сонячна система</title>
+  <title>AR Сонячна система (вид зверху)</title>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
-  <script src="planet.js"></script>
+  <script>
+    AFRAME.registerComponent('planet', {
+      schema: {
+        dist: {type: 'number'},
+        mass: {type: 'number'},
+        name: {type: 'string'}
+      },
+      init: function () {
+        this.angle = Math.random() * 360;
+        // Додаємо невеликий випадковий нахил орбіти (для 3D ефекту)
+        this.orbitInclination = (Math.random() * 5) - 2.5; 
+      },
+      tick: function (time, timeDelta) {
+        this.angle += (timeDelta / 1000) * (10 / (this.data.dist + 1));
+        const rad = THREE.MathUtils.degToRad(this.angle);
+        const x = this.data.dist * Math.cos(rad);
+        const z = this.data.dist * Math.sin(rad);
+        const y = Math.sin(rad * 2) * this.orbitInclination * 0.1; // Невеликий "підйом"
+        this.el.setAttribute('position', {x: x, y: y, z: z});
+      }
+    });
+
+    AFRAME.registerComponent('spin', {
+      schema: {
+        speed: {type: 'number', default: 1}
+      },
+      tick: function (time, timeDelta) {
+        this.el.object3D.rotation.y += this.data.speed * timeDelta / 1000;
+      }
+    });
+  </script>
   <style>
     body { margin: 0; overflow: hidden; }
     a-scene { width: 100%; height: 100vh; }
-    .arjs-loader { display: none; }
   </style>
 </head>
 <body>
@@ -31,32 +60,46 @@
       <img id="neptune" src="neptune.jpg">
     </a-assets>
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <!-- Камера з нахилом для виду зверху -->
+    <a-camera position="0 1.5 0" rotation="-30 0 0"></a-camera>
 
-    <a-entity mindar-image-target="targetIndex: 0">
-      <!-- Сонце (зменшено розмір і відстані планет) -->
-      <a-sphere radius="0.2" src="#sun" planet="dist: 0; mass: 1.989e30; name: Sun" spin="speed: 0.2"></a-sphere>
+    <!-- Основний контейнер з нахилом -->
+    <a-entity mindar-image-target="targetIndex: 0" rotation="30 0 0">
+      <!-- Сонце -->
+      <a-sphere radius="0.15" src="#sun" position="0 0 0"
+                planet="dist: 0; mass: 1.989e30; name: Sun" 
+                spin="speed: 0.1">
+      </a-sphere>
 
-      <!-- Планети (нові масштаби) -->
-      <a-sphere radius="0.03" src="#mercury" planet="dist: 0.4; mass: 3.3e23; name: Mercury" spin="speed: 1.2"></a-sphere>
-      <a-sphere radius="0.05" src="#venus" planet="dist: 0.6; mass: 4.8e24; name: Venus" spin="speed: 0.8"></a-sphere>
-      <a-sphere radius="0.05" src="#earth" planet="dist: 0.8; mass: 6e24; name: Earth" spin="speed: 1"></a-sphere>
-      <a-sphere radius="0.04" src="#mars" planet="dist: 1.0; mass: 6.4e23; name: Mars" spin="speed: 0.9"></a-sphere>
-      <a-sphere radius="0.1" src="#jupiter" planet="dist: 1.5; mass: 1.9e27; name: Jupiter" spin="speed: 1.5"></a-sphere>
-      <a-sphere radius="0.08" src="#saturn" planet="dist: 1.8; mass: 5.7e26; name: Saturn" spin="speed: 1.2"></a-sphere>
-      <a-sphere radius="0.07" src="#uranus" planet="dist: 2.1; mass: 8.7e25; name: Uranus" spin="speed: 1.1"></a-sphere>
-      <a-sphere radius="0.06" src="#neptune" planet="dist: 2.3; mass: 1e26; name: Neptune" spin="speed: 1"></a-sphere>
+      <!-- Планети з адаптованими параметрами -->
+      <a-sphere radius="0.02" src="#mercury" 
+                planet="dist: 0.3; mass: 3.3e23; name: Mercury" 
+                spin="speed: 1.5"></a-sphere>
+      <a-sphere radius="0.04" src="#venus" 
+                planet="dist: 0.45; mass: 4.8e24; name: Venus" 
+                spin="speed: 0.7"></a-sphere>
+      <a-sphere radius="0.04" src="#earth" 
+                planet="dist: 0.6; mass: 6e24; name: Earth" 
+                spin="speed: 1"></a-sphere>
+      <a-sphere radius="0.03" src="#mars" 
+                planet="dist: 0.75; mass: 6.4e23; name: Mars" 
+                spin="speed: 0.8"></a-sphere>
+      <a-sphere radius="0.08" src="#jupiter" 
+                planet="dist: 1.1; mass: 1.9e27; name: Jupiter" 
+                spin="speed: 2"></a-sphere>
+      <a-sphere radius="0.07" src="#saturn" 
+                planet="dist: 1.35; mass: 5.7e26; name: Saturn" 
+                spin="speed: 1.5">
+        <!-- Кільця Сатурна -->
+        <a-ring radius-inner="0.09" radius-outer="0.12" rotation="-60 0 0" color="#d9c7ab"></a-ring>
+      </a-sphere>
+      <a-sphere radius="0.05" src="#uranus" 
+                planet="dist: 1.6; mass: 8.7e25; name: Uranus" 
+                spin="speed: 1.2"></a-sphere>
+      <a-sphere radius="0.05" src="#neptune" 
+                planet="dist: 1.8; mass: 1e26; name: Neptune" 
+                spin="speed: 1"></a-sphere>
     </a-entity>
   </a-scene>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!window.MINDAR?.IMAGE) {
-        console.warn("MindAR Image module not loaded");
-      } else {
-        console.log("AR система готова до використання!");
-      }
-    });
-  </script>
 </body>
 </html>
