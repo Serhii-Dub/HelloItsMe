@@ -5,14 +5,22 @@
   <title>AR Сонячна система</title>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+  <script src="planet.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
-    a-scene { width: 100vw; height: 100vh; }
+    a-scene { width: 100%; height: 100vh; }
   </style>
 </head>
 <body>
-  <a-scene mindar-image="imageTargetSrc: marker.mind;" embedded>
+  <a-scene mindar-image="imageTargetSrc: marker.mind" 
+           color-space="sRGB" 
+           renderer="colorManagement: true, physicallyCorrectLights" 
+           vr-mode-ui="enabled: false" 
+           device-orientation-permission-ui="enabled: true"
+           embedded>
+
     <a-assets>
+      <!-- Локальні текстури -->
       <img id="sun" src="sun.jpg">
       <img id="mercury" src="mercury.jpg">
       <img id="venus" src="venus.jpg">
@@ -27,15 +35,18 @@
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
     <a-entity mindar-image-target="targetIndex: 0">
-      <a-sphere radius="0.3" src="#sun" position="0 0 0"></a-sphere>
-      <a-sphere radius="0.05" src="#mercury" position="0.5 0 0"></a-sphere>
-      <a-sphere radius="0.07" src="#venus" position="0.8 0 0"></a-sphere>
-      <a-sphere radius="0.08" src="#earth" position="1.1 0 0"></a-sphere>
-      <a-sphere radius="0.06" src="#mars" position="1.4 0 0"></a-sphere>
-      <a-sphere radius="0.2" src="#jupiter" position="1.8 0 0"></a-sphere>
-      <a-sphere radius="0.18" src="#saturn" position="2.2 0 0"></a-sphere>
-      <a-sphere radius="0.12" src="#uranus" position="2.5 0 0"></a-sphere>
-      <a-sphere radius="0.11" src="#neptune" position="2.8 0 0"></a-sphere>
+      <!-- Сонце -->
+      <a-sphere radius="0.4" src="#sun" planet="dist: 0; mass: 1.989e30; name: Sun" spin="speed: 0.2"></a-sphere>
+
+      <!-- Планети -->
+      <a-sphere radius="0.05" src="#mercury" planet="dist: 0.8; mass: 3.3e23; name: Mercury" spin="speed: 1.2"></a-sphere>
+      <a-sphere radius="0.09" src="#venus" planet="dist: 1.2; mass: 4.8e24; name: Venus" spin="speed: 0.8"></a-sphere>
+      <a-sphere radius="0.1" src="#earth" planet="dist: 1.6; mass: 6e24; name: Earth" spin="speed: 1"></a-sphere>
+      <a-sphere radius="0.07" src="#mars" planet="dist: 2; mass: 6.4e23; name: Mars" spin="speed: 0.9"></a-sphere>
+      <a-sphere radius="0.2" src="#jupiter" planet="dist: 3; mass: 1.9e27; name: Jupiter" spin="speed: 1.5"></a-sphere>
+      <a-sphere radius="0.15" src="#saturn" planet="dist: 3.6; mass: 5.7e26; name: Saturn" spin="speed: 1.2"></a-sphere>
+      <a-sphere radius="0.13" src="#uranus" planet="dist: 4.1; mass: 8.7e25; name: Uranus" spin="speed: 1.1"></a-sphere>
+      <a-sphere radius="0.12" src="#neptune" planet="dist: 4.5; mass: 1e26; name: Neptune" spin="speed: 1"></a-sphere>
     </a-entity>
   </a-scene>
 </body>
