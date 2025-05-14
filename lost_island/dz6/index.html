@@ -3,16 +3,33 @@
 <head>
     <meta charset="utf-8">
     <title>AR Geometry Calculator (MindAR)</title>
+    <!-- Підключаємо A-Frame та MindAR через CDN -->
     <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        /* Стилі для розтягування на весь екран */
+        body, html, a-scene {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        /* Сховати інтерфейс A-Frame */
+        .a-enter-vr, .a-orientation-modal {
+            display: none !important;
+        }
+    </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
+<body>
     <!-- Головна сцена MindAR -->
-    <a-scene mindar-image="imageTargetSrc: targets.mind;" vr-mode-ui="enabled: false;" embedded renderer="logarithmicDepthBuffer: true;">
+    <a-scene mindar-image="imageTargetSrc: https://raw.githubusercontent.com/hiukim/mind-ar-js/master/examples/image-tracking/assets/card-example/card.mind;" 
+             vr-mode-ui="enabled: false" 
+             embedded 
+             renderer="logarithmicDepthBuffer: true;">
 
-        <!-- Маркери A, B, C, D -->
-        <a-entity mindar-image-target="targetIndex: 0">
+        <!-- Маркер 0 (A) -->
+        <a-entity mindar-image-target="targetIndex: 0" id="A">
             <a-sphere color="red" radius="0.10"></a-sphere>
             <a-text value="A" color="white" align="center" position="0 0.2 0"></a-text>
             <a-entity id="AB"></a-entity>
@@ -21,26 +38,29 @@
             <a-text id="PS" color="yellow" value="" position="0 0.3 0" rotation="-90 0 0"></a-text>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 1">
+        <!-- Маркер 1 (B) -->
+        <a-entity mindar-image-target="targetIndex: 1" id="B">
             <a-sphere color="blue" radius="0.10"></a-sphere>
             <a-text value="B" color="white" align="center" position="0 0.2 0"></a-text>
             <a-entity id="BC"></a-entity>
             <a-entity id="BD"></a-entity>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 2">
+        <!-- Маркер 2 (C) -->
+        <a-entity mindar-image-target="targetIndex: 2" id="C">
             <a-sphere color="green" radius="0.10"></a-sphere>
             <a-text value="C" color="white" align="center" position="0 0.2 0"></a-text>
             <a-entity id="CD"></a-entity>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 3">
+        <!-- Маркер 3 (D) -->
+        <a-entity mindar-image-target="targetIndex: 3" id="D">
             <a-sphere color="yellow" radius="0.10"></a-sphere>
             <a-text value="D" color="white" align="center" position="0 0.2 0"></a-text>
         </a-entity>
 
         <!-- Камера -->
-        <a-entity camera></a-entity>
+        <a-entity camera position="0 0 0" look-controls="enabled: false"></a-entity>
         
         <!-- Компонент для обчислень -->
         <a-entity run></a-entity>
@@ -61,12 +81,12 @@
         // Реєстрація компонента для обробки подій маркерів
         AFRAME.registerComponent('registerevents', {
             init: function () {
-                let marker = this.el;
-                marker.addEventListener('targetFound', function() {
+                const marker = this.el;
+                marker.addEventListener('targetFound', () => {
                     markerVisible[marker.id] = true;
                     console.log(marker.id, " знайдено");
                 });
-                marker.addEventListener('targetLost', function() {
+                marker.addEventListener('targetLost', () => {
                     markerVisible[marker.id] = false;
                     console.log(marker.id, " втрачено");
                 });
@@ -77,10 +97,10 @@
         AFRAME.registerComponent('run', {
             init: function () {
                 // Отримання посилань на об'єкти маркерів
-                this.A = document.querySelector('[mindar-image-target="targetIndex: 0"]').object3D;
-                this.B = document.querySelector('[mindar-image-target="targetIndex: 1"]').object3D;
-                this.C = document.querySelector('[mindar-image-target="targetIndex: 2"]').object3D;
-                this.D = document.querySelector('[mindar-image-target="targetIndex: 3"]').object3D;
+                this.A = document.getElementById("A").object3D;
+                this.B = document.getElementById("B").object3D;
+                this.C = document.getElementById("C").object3D;
+                this.D = document.getElementById("D").object3D;
                 
                 // Отримання посилань на лінії між маркерами
                 this.AB = document.getElementById("AB").object3D;
@@ -91,8 +111,8 @@
                 this.CD = document.getElementById("CD").object3D;
                 
                 // Матеріал для ліній
-                let material = new THREE.MeshLambertMaterial({color: 0xFF0000});
-                let geometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 12);
+                const material = new THREE.MeshLambertMaterial({color: 0xFF0000});
+                const geometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 12);
                 geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0.5, 0));
                 geometry.applyMatrix4(new THREE.Matrix4().makeRotationX(THREE.MathUtils.degToRad(90)));
                 
@@ -138,37 +158,37 @@
                 
                 // Відображення ліній між видимими маркерами
                 if(markerVisible["A"] && markerVisible["B"]) {
-                    let distance = coord['A'].distanceTo(coord['B']);
+                    const distance = coord['A'].distanceTo(coord['B']);
                     this.AB.lookAt(coord['B']);
                     this.cAB.scale.set(1, 1, distance);
                     this.cAB.visible = true;
                 }
                 if(markerVisible["A"] && markerVisible["C"]) {
-                    let distance = coord['A'].distanceTo(coord['C']);
+                    const distance = coord['A'].distanceTo(coord['C']);
                     this.AC.lookAt(coord['C']);
                     this.cAC.scale.set(1, 1, distance);
                     this.cAC.visible = true;
                 }
                 if(markerVisible["A"] && markerVisible["D"]) {
-                    let distance = coord['A'].distanceTo(coord['D']);
+                    const distance = coord['A'].distanceTo(coord['D']);
                     this.AD.lookAt(coord['D']);
                     this.cAD.scale.set(1, 1, distance);
                     this.cAD.visible = true;
                 }
                 if(markerVisible["B"] && markerVisible["C"]) {
-                    let distance = coord['B'].distanceTo(coord['C']);
+                    const distance = coord['B'].distanceTo(coord['C']);
                     this.BC.lookAt(coord['C']);
                     this.cBC.scale.set(1, 1, distance);
                     this.cBC.visible = true;
                 }
                 if(markerVisible["B"] && markerVisible["D"]) {
-                    let distance = coord['B'].distanceTo(coord['D']);
+                    const distance = coord['B'].distanceTo(coord['D']);
                     this.BD.lookAt(coord['D']);
                     this.cBD.scale.set(1, 1, distance);
                     this.cBD.visible = true;
                 }
                 if(markerVisible["C"] && markerVisible["D"]) {
-                    let distance = coord['C'].distanceTo(coord['D']);
+                    const distance = coord['C'].distanceTo(coord['D']);
                     this.CD.lookAt(coord['D']);
                     this.cCD.scale.set(1, 1, distance);
                     this.cCD.visible = true;
@@ -214,6 +234,12 @@
                 }
             }
         });
+
+        // Обробка подій сцени для відладки
+        const scene = document.querySelector('a-scene');
+        scene.addEventListener('loaded', () => console.log('Сцена завантажена'));
+        scene.addEventListener('arReady', () => console.log('MindAR готовий'));
+        scene.addEventListener('arError', (error) => console.error('Помилка MindAR:', error));
     </script>
 </body>
 </html>
