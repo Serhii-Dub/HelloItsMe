@@ -6,9 +6,10 @@
     <style>
         body {
             margin: 0;
-            overflow: hidden;
+            padding: 0;
             width: 100vw;
             height: 100vh;
+            overflow: hidden;
         }
         a-scene {
             width: 100%;
@@ -30,7 +31,7 @@
             <a-entity id="AB"></a-entity>
             <a-entity id="AC"></a-entity>
             <a-entity id="AD"></a-entity>
-            <a-text id="PS" color="yellow" value="" position="0 0.3 0" rotation="-90 0 0"></a-text>
+            <a-text id="PS" color="yellow" value="Place markers A, B, C, D" position="0 0.3 0" rotation="-90 0 0"></a-text>
         </a-entity>
 
         <a-entity mindar-image-target="targetIndex: 1" id="B">
@@ -53,7 +54,7 @@
     </a-scene>
 
     <script>
-        // 1. Зберігаємо стан маркерів
+        // 1. Зберігаємо стан маркерів (тільки A, B, C, D)
         let markerVisible = { A: false, B: false, C: false, D: false };
         let coord = { 
             A: new THREE.Vector3(), 
@@ -62,7 +63,7 @@
             D: new THREE.Vector3() 
         };
 
-        // 2. Реєструємо компонент для подій маркерів (як у вашому коді)
+        // 2. Реєструємо компонент для подій маркерів (аналогічно до коду викладача)
         AFRAME.registerComponent('registerevents', {
             init: function () {
                 let marker = this.el;
@@ -77,15 +78,16 @@
             }
         });
 
-        // 3. Основний компонент для обчислень (аналогічно до вашого коду)
+        // 3. Основний компонент для обчислень (адаптовано з коду викладача)
         AFRAME.registerComponent('run', {
             init: function () {
-                // Отримуємо посилання на об'єкти як у вашому коді
+                // Отримуємо посилання на об'єкти (тільки A, B, C, D)
                 this.A = document.getElementById("A").object3D;
                 this.B = document.getElementById("B").object3D;
                 this.C = document.getElementById("C").object3D;
                 this.D = document.getElementById("D").object3D;
                 
+                // Лінії між маркерами (тільки потрібні для A, B, C, D)
                 this.AB = document.getElementById("AB").object3D;
                 this.AC = document.getElementById("AC").object3D;
                 this.AD = document.getElementById("AD").object3D;
@@ -93,28 +95,31 @@
                 this.BD = document.getElementById("BD").object3D;
                 this.CD = document.getElementById("CD").object3D;
 
-                // Створюємо лінії (циліндри) як у вашому коді
+                // Створюємо лінії (циліндри) - аналогічно до коду викладача
                 let material = new THREE.MeshLambertMaterial({color:0xFF0000});
                 let geometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 12);
+                
                 geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0.5, 0));
                 geometry.applyMatrix4(new THREE.Matrix4().makeRotationX(THREE.MathUtils.degToRad(90)));
-
+                
                 this.cAB = new THREE.Mesh(geometry, material); this.AB.add(this.cAB); this.cAB.visible = false;
                 this.cAC = new THREE.Mesh(geometry, material); this.AC.add(this.cAC); this.cAC.visible = false;
                 this.cAD = new THREE.Mesh(geometry, material); this.AD.add(this.cAD); this.cAD.visible = false;
                 this.cBC = new THREE.Mesh(geometry, material); this.BC.add(this.cBC); this.cBC.visible = false;
                 this.cBD = new THREE.Mesh(geometry, material); this.BD.add(this.cBD); this.cBD.visible = false;
                 this.cCD = new THREE.Mesh(geometry, material); this.CD.add(this.cCD); this.cCD.visible = false;
+
+                console.log("Ініціалізація завершена");
             },
             
             tick: function () {
-                // Оновлюємо координати як у вашому коді
+                // Оновлюємо координати (тільки A, B, C, D)
                 this.A.getWorldPosition(coord['A']);
                 this.B.getWorldPosition(coord['B']);
                 this.C.getWorldPosition(coord['C']);
                 this.D.getWorldPosition(coord['D']);
 
-                // Оновлюємо видимість ліній
+                // Оновлюємо видимість ліній (спрощено, без F, G)
                 if(!markerVisible["A"]) {
                     this.cAB.visible = false;
                     this.cAC.visible = false;
@@ -136,7 +141,7 @@
                     this.cCD.visible = false;
                 }
 
-                // Оновлюємо лінії між маркерами
+                // Оновлюємо лінії між видимими маркерами
                 if(markerVisible["A"] && markerVisible["B"]) {
                     let distance = coord['A'].distanceTo(coord['B']);
                     this.AB.lookAt(coord['B']);
@@ -174,31 +179,34 @@
                     this.cCD.visible = true;
                 }
 
-                // Розрахунки периметра та площ (розширена версія)
+                // Розширені обчислення для чотирикутника та всіх трикутників
                 if(markerVisible["A"] && markerVisible["B"] && markerVisible["C"] && markerVisible["D"]) {
+                    // Довжини сторін чотирикутника
                     const lenAB = coord['A'].distanceTo(coord['B']);
                     const lenBC = coord['B'].distanceTo(coord['C']);
                     const lenCD = coord['C'].distanceTo(coord['D']);
                     const lenDA = coord['D'].distanceTo(coord['A']);
+                    
+                    // Довжини діагоналей
                     const lenAC = coord['A'].distanceTo(coord['C']);
                     const lenBD = coord['B'].distanceTo(coord['D']);
-
+                    
                     // Периметр чотирикутника
                     const perimeter = lenAB + lenBC + lenCD + lenDA;
-
-                    // Функція для площі трикутника за Героном
+                    
+                    // Функція для площі трикутника за формулою Герона
                     const triangleArea = (a, b, c) => {
                         const p = (a + b + c) / 2;
                         return Math.sqrt(p * (p - a) * (p - b) * (p - c));
                     };
-
-                    // Площі всіх трикутників
+                    
+                    // Площі всіх можливих трикутників
                     const areaABC = triangleArea(lenAB, lenBC, lenAC);
                     const areaABD = triangleArea(lenAB, lenBD, lenDA);
                     const areaACD = triangleArea(lenAC, lenCD, lenDA);
                     const areaBCD = triangleArea(lenBC, lenCD, lenBD);
-
-                    // Оновлюємо текст
+                    
+                    // Оновлюємо текст з результатами
                     const PS = document.getElementById("PS");
                     PS.setAttribute("value", 
                         `Периметр: ${perimeter.toFixed(2)}\n` +
