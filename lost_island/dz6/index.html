@@ -1,265 +1,219 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AR Чотирикутник на маркерах</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <title>AR Geometry Calculator (MindAR)</title>
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.0/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-        a-scene {
-            width: 100%;
-            height: 100vh;
-        }
-        #info-panel {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            max-width: 300px;
-            z-index: 10000;
-        }
-        .marker-label {
-            font-size: 0.5em;
-            color: white;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 0.2em;
-            border-radius: 0.2em;
-            white-space: nowrap;
-        }
-        #debug-info {
-            font-size: 0.8em;
-            color: #ff9900;
-            margin-top: 10px;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 </head>
-<body>
-    <a-scene mindar-image="imageTargetSrc: targets.mind; autoStart: true;" 
-             vr-mode-ui="enabled: false" 
-             renderer="colorManagement: true;"
-             loading-screen="enabled: false;">
+<body style="margin: 0; overflow: hidden;">
+    <!-- Головна сцена MindAR -->
+    <a-scene mindar-image="imageTargetSrc: targets.mind;" vr-mode-ui="enabled: false;" embedded renderer="logarithmicDepthBuffer: true;">
 
-        <a-assets>
-            <img id="markerA" src="markerA.png">
-            <img id="markerB" src="markerB.png">
-            <img id="markerC" src="markerC.png">
-            <img id="markerD" src="markerD.png">
-        </a-assets>
-
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-        <!-- Маркери з реєстрацією подій -->
-        <a-entity mindar-image-target="targetIndex: 0" id="A" registerevents>
-            <a-plane src="#markerA" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
-            <a-entity position="0 0.01 0" text="value: A; align: center; color: white; width: 5" class="marker-label"></a-entity>
+        <!-- Маркери A, B, C, D -->
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-sphere color="red" radius="0.10"></a-sphere>
+            <a-text value="A" color="white" align="center" position="0 0.2 0"></a-text>
             <a-entity id="AB"></a-entity>
             <a-entity id="AC"></a-entity>
             <a-entity id="AD"></a-entity>
+            <a-text id="PS" color="yellow" value="" position="0 0.3 0" rotation="-90 0 0"></a-text>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 1" id="B" registerevents>
-            <a-plane src="#markerB" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
-            <a-entity position="0 0.01 0" text="value: B; align: center; color: white; width: 5" class="marker-label"></a-entity>
+        <a-entity mindar-image-target="targetIndex: 1">
+            <a-sphere color="blue" radius="0.10"></a-sphere>
+            <a-text value="B" color="white" align="center" position="0 0.2 0"></a-text>
             <a-entity id="BC"></a-entity>
             <a-entity id="BD"></a-entity>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 2" id="C" registerevents>
-            <a-plane src="#markerC" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
-            <a-entity position="0 0.01 0" text="value: C; align: center; color: white; width: 5" class="marker-label"></a-entity>
+        <a-entity mindar-image-target="targetIndex: 2">
+            <a-sphere color="green" radius="0.10"></a-sphere>
+            <a-text value="C" color="white" align="center" position="0 0.2 0"></a-text>
             <a-entity id="CD"></a-entity>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 3" id="D" registerevents>
-            <a-plane src="#markerD" width="0.5" height="0.5" position="0 0 0" rotation="-90 0 0"></a-plane>
-            <a-entity position="0 0.01 0" text="value: D; align: center; color: white; width: 5" class="marker-label"></a-entity>
+        <a-entity mindar-image-target="targetIndex: 3">
+            <a-sphere color="yellow" radius="0.10"></a-sphere>
+            <a-text value="D" color="white" align="center" position="0 0.2 0"></a-text>
         </a-entity>
 
-        <!-- Панель інформації -->
-        <div id="info-panel">
-            <h3>Геометричні обчислення</h3>
-            <p id="perimeter">Периметр: -</p>
-            <p id="areas">Площі трикутників: -</p>
-            <p id="debug-info">Статус: Ініціалізація...</p>
-        </div>
-
+        <!-- Камера -->
+        <a-entity camera></a-entity>
+        
         <!-- Компонент для обчислень -->
         <a-entity run></a-entity>
     </a-scene>
 
     <script>
-        // Глобальний об'єкт для відстеження стану
-        const ARState = {
-            markers: ['A', 'B', 'C', 'D'],
-            visible: { A: false, B: false, C: false, D: false },
-            positions: {},
-            sceneReady: false
+        // Об'єкт для відстеження стану маркерів
+        let markerVisible = { A: false, B: false, C: false, D: false };
+        
+        // Координати маркерів
+        let coord = { 
+            A: new THREE.Vector3(), 
+            B: new THREE.Vector3(), 
+            C: new THREE.Vector3(), 
+            D: new THREE.Vector3() 
         };
-
-        // Компонент для реєстрації подій маркерів
+        
+        // Реєстрація компонента для обробки подій маркерів
         AFRAME.registerComponent('registerevents', {
             init: function () {
-                const markerId = this.el.id;
-                if (!ARState.markers.includes(markerId)) return;
-
-                this.el.addEventListener('targetFound', () => {
-                    ARState.visible[markerId] = true;
-                    console.log(`Маркер ${markerId} знайдено`);
+                let marker = this.el;
+                marker.addEventListener('targetFound', function() {
+                    markerVisible[marker.id] = true;
+                    console.log(marker.id, " знайдено");
                 });
-
-                this.el.addEventListener('targetLost', () => {
-                    ARState.visible[markerId] = false;
-                    console.log(`Маркер ${markerId} втрачено`);
+                marker.addEventListener('targetLost', function() {
+                    markerVisible[marker.id] = false;
+                    console.log(marker.id, " втрачено");
                 });
             }
-        });
-
-        // Компонент для обчислень та візуалізації
+        });  
+        
+        // Основний компонент для обчислень та візуалізації
         AFRAME.registerComponent('run', {
             init: function () {
-                console.log("Ініціалізація компонента 'run'");
+                // Отримання посилань на об'єкти маркерів
+                this.A = document.querySelector('[mindar-image-target="targetIndex: 0"]').object3D;
+                this.B = document.querySelector('[mindar-image-target="targetIndex: 1"]').object3D;
+                this.C = document.querySelector('[mindar-image-target="targetIndex: 2"]').object3D;
+                this.D = document.querySelector('[mindar-image-target="targetIndex: 3"]').object3D;
                 
-                // Ініціалізація позицій
-                ARState.markers.forEach(id => {
-                    ARState.positions[id] = new THREE.Vector3();
-                });
-
-                // Ініціалізація ліній
-                this.lineMeshes = {};
-                const lineGeometry = new THREE.CylinderGeometry(0.01, 0.01, 1, 12);
-                lineGeometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0.5, 0));
-                lineGeometry.applyMatrix4(new THREE.Matrix4().makeRotationX(Math.PI/2));
-                const lineMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-
-                // Створення ліній між маркерами
-                const connections = ['AB', 'AC', 'AD', 'BC', 'BD', 'CD'];
-                connections.forEach(connId => {
-                    const lineEntity = document.getElementById(connId);
-                    if (lineEntity) {
-                        const lineMesh = new THREE.Mesh(lineGeometry, lineMaterial);
-                        lineMesh.visible = false;
-                        lineEntity.object3D.add(lineMesh);
-                        this.lineMeshes[connId] = lineMesh;
-                    }
-                });
-
-                ARState.sceneReady = true;
-                console.log("Компонент 'run' готовий");
+                // Отримання посилань на лінії між маркерами
+                this.AB = document.getElementById("AB").object3D;
+                this.AC = document.getElementById("AC").object3D;
+                this.AD = document.getElementById("AD").object3D;
+                this.BC = document.getElementById("BC").object3D;
+                this.BD = document.getElementById("BD").object3D;
+                this.CD = document.getElementById("CD").object3D;
+                
+                // Матеріал для ліній
+                let material = new THREE.MeshLambertMaterial({color: 0xFF0000});
+                let geometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 12);
+                geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0.5, 0));
+                geometry.applyMatrix4(new THREE.Matrix4().makeRotationX(THREE.MathUtils.degToRad(90)));
+                
+                // Створення ліній (циліндрів) між маркерами
+                this.cAB = new THREE.Mesh(geometry, material); this.AB.add(this.cAB); this.cAB.visible = false;
+                this.cAC = new THREE.Mesh(geometry, material); this.AC.add(this.cAC); this.cAC.visible = false;
+                this.cAD = new THREE.Mesh(geometry, material); this.AD.add(this.cAD); this.cAD.visible = false;
+                this.cBC = new THREE.Mesh(geometry, material); this.BC.add(this.cBC); this.cBC.visible = false;
+                this.cBD = new THREE.Mesh(geometry, material); this.BD.add(this.cBD); this.cBD.visible = false;
+                this.cCD = new THREE.Mesh(geometry, material); this.CD.add(this.cCD); this.cCD.visible = false;
+                
+                console.log("Ініціалізація завершена");
             },
-
+            
             tick: function () {
-                if (!ARState.sceneReady) return;
-
-                // 1. Оновлюємо позиції видимих маркерів
-                ARState.markers.forEach(id => {
-                    const marker = document.getElementById(id);
-                    if (marker && ARState.visible[id]) {
-                        marker.object3D.getWorldPosition(ARState.positions[id]);
-                    }
-                });
-
-                // 2. Оновлюємо лінії
-                const connections = {
-                    AB: ['A', 'B'], AC: ['A', 'C'], AD: ['A', 'D'],
-                    BC: ['B', 'C'], BD: ['B', 'D'], CD: ['C', 'D']
-                };
-
-                Object.entries(connections).forEach(([lineId, [id1, id2]]) => {
-                    const mesh = this.lineMeshes[lineId];
-                    if (!mesh) return;
-
-                    if (ARState.visible[id1] && ARState.visible[id2]) {
-                        const pos1 = ARState.positions[id1];
-                        const pos2 = ARState.positions[id2];
-                        const distance = pos1.distanceTo(pos2);
-
-                        if (distance > 0.001) {
-                            const lineEntity = document.getElementById(lineId);
-                            lineEntity.object3D.position.copy(pos1);
-                            lineEntity.object3D.lookAt(pos2);
-                            mesh.scale.z = distance;
-                            mesh.visible = true;
-                        } else {
-                            mesh.visible = false;
-                        }
-                    } else {
-                        mesh.visible = false;
-                    }
-                });
-
-                // 3. Обчислення периметра та площ
-                updateCalculations();
+                // Оновлення координат маркерів
+                this.A.getWorldPosition(coord['A']);
+                this.B.getWorldPosition(coord['B']);
+                this.C.getWorldPosition(coord['C']);
+                this.D.getWorldPosition(coord['D']);
+                
+                // Оновлення видимості ліній
+                if(!markerVisible["A"]) {
+                    this.cAB.visible = false;
+                    this.cAC.visible = false;
+                    this.cAD.visible = false;
+                }
+                if(!markerVisible["B"]) {
+                    this.cAB.visible = false;
+                    this.cBC.visible = false;
+                    this.cBD.visible = false;
+                }
+                if(!markerVisible["C"]) {
+                    this.cAC.visible = false;
+                    this.cBC.visible = false;
+                    this.cCD.visible = false;
+                }
+                if(!markerVisible["D"]) {
+                    this.cAD.visible = false;
+                    this.cBD.visible = false;
+                    this.cCD.visible = false;
+                }
+                
+                // Відображення ліній між видимими маркерами
+                if(markerVisible["A"] && markerVisible["B"]) {
+                    let distance = coord['A'].distanceTo(coord['B']);
+                    this.AB.lookAt(coord['B']);
+                    this.cAB.scale.set(1, 1, distance);
+                    this.cAB.visible = true;
+                }
+                if(markerVisible["A"] && markerVisible["C"]) {
+                    let distance = coord['A'].distanceTo(coord['C']);
+                    this.AC.lookAt(coord['C']);
+                    this.cAC.scale.set(1, 1, distance);
+                    this.cAC.visible = true;
+                }
+                if(markerVisible["A"] && markerVisible["D"]) {
+                    let distance = coord['A'].distanceTo(coord['D']);
+                    this.AD.lookAt(coord['D']);
+                    this.cAD.scale.set(1, 1, distance);
+                    this.cAD.visible = true;
+                }
+                if(markerVisible["B"] && markerVisible["C"]) {
+                    let distance = coord['B'].distanceTo(coord['C']);
+                    this.BC.lookAt(coord['C']);
+                    this.cBC.scale.set(1, 1, distance);
+                    this.cBC.visible = true;
+                }
+                if(markerVisible["B"] && markerVisible["D"]) {
+                    let distance = coord['B'].distanceTo(coord['D']);
+                    this.BD.lookAt(coord['D']);
+                    this.cBD.scale.set(1, 1, distance);
+                    this.cBD.visible = true;
+                }
+                if(markerVisible["C"] && markerVisible["D"]) {
+                    let distance = coord['C'].distanceTo(coord['D']);
+                    this.CD.lookAt(coord['D']);
+                    this.cCD.scale.set(1, 1, distance);
+                    this.cCD.visible = true;
+                }
+                
+                // Обчислення периметра та площ трикутників, якщо видно всі 4 маркери
+                if(markerVisible["A"] && markerVisible["B"] && markerVisible["C"] && markerVisible["D"]) {
+                    // Довжини сторін чотирикутника
+                    const lenAB = coord['A'].distanceTo(coord['B']);
+                    const lenBC = coord['B'].distanceTo(coord['C']);
+                    const lenCD = coord['C'].distanceTo(coord['D']);
+                    const lenDA = coord['D'].distanceTo(coord['A']);
+                    
+                    // Довжини діагоналей
+                    const lenAC = coord['A'].distanceTo(coord['C']);
+                    const lenBD = coord['B'].distanceTo(coord['D']);
+                    
+                    // Периметр чотирикутника
+                    const perimeter = lenAB + lenBC + lenCD + lenDA;
+                    
+                    // Функція для обчислення площі трикутника за формулою Герона
+                    const calculateTriangleArea = (a, b, c) => {
+                        const p = (a + b + c) / 2;
+                        return Math.sqrt(p * (p - a) * (p - b) * (p - c));
+                    };
+                    
+                    // Площі всіх можливих трикутників
+                    const areaABC = calculateTriangleArea(lenAB, lenBC, lenAC);
+                    const areaABD = calculateTriangleArea(lenAB, lenBD, lenDA);
+                    const areaACD = calculateTriangleArea(lenAC, lenCD, lenDA);
+                    const areaBCD = calculateTriangleArea(lenBC, lenCD, lenBD);
+                    
+                    // Оновлення тексту з результатами
+                    const PS = document.getElementById("PS");
+                    PS.setAttribute("value", 
+                        `Периметр: ${perimeter.toFixed(2)}\n` +
+                        `Площі трикутників:\n` +
+                        `ABC: ${areaABC.toFixed(2)}\n` +
+                        `ABD: ${areaABD.toFixed(2)}\n` +
+                        `ACD: ${areaACD.toFixed(2)}\n` +
+                        `BCD: ${areaBCD.toFixed(2)}`
+                    );
+                }
             }
         });
-
-        // Функція оновлення обчислень
-        function updateCalculations() {
-            const visibleCount = ARState.markers.filter(id => ARState.visible[id]).length;
-            
-            // Якщо виявлено не всі маркери
-            if (visibleCount < 4) {
-                document.getElementById('perimeter').textContent = `Периметр: Виявлено ${visibleCount}/4 маркерів`;
-                document.getElementById('areas').textContent = "Площі: Потрібно всі 4 маркери";
-                document.getElementById('debug-info').textContent = `Статус: Виявлено ${visibleCount}/4 маркерів`;
-                return;
-            }
-            
-            // Обчислюємо периметр
-            let perimeter = 0;
-            const sides = [
-                distance(ARState.positions.A, ARState.positions.B),
-                distance(ARState.positions.B, ARState.positions.C),
-                distance(ARState.positions.C, ARState.positions.D),
-                distance(ARState.positions.D, ARState.positions.A)
-            ];
-            
-            perimeter = sides.reduce((sum, side) => sum + side, 0);
-            document.getElementById('perimeter').textContent = `Периметр: ${perimeter.toFixed(2)} м`;
-            
-            // Обчислюємо площі трикутників
-            const triangles = [
-                {name: 'ABC', points: ['A', 'B', 'C']},
-                {name: 'ABD', points: ['A', 'B', 'D']},
-                {name: 'ACD', points: ['A', 'C', 'D']},
-                {name: 'BCD', points: ['B', 'C', 'D']}
-            ];
-            
-            let areasText = "Площі трикутників:<br>";
-            triangles.forEach(triangle => {
-                const area = triangleArea(
-                    ARState.positions[triangle.points[0]],
-                    ARState.positions[triangle.points[1]],
-                    ARState.positions[triangle.points[2]]
-                );
-                areasText += `${triangle.name}: ${area.toFixed(2)} м²<br>`;
-            });
-            
-            document.getElementById('areas').innerHTML = areasText;
-            document.getElementById('debug-info').textContent = "Статус: Усі маркери виявлені";
-        }
-
-        // Допоміжні функції
-        function distance(p1, p2) {
-            return p1.distanceTo(p2);
-        }
-
-        function triangleArea(a, b, c) {
-            const ab = distance(a, b);
-            const bc = distance(b, c);
-            const ca = distance(c, a);
-            
-            const s = (ab + bc + ca) / 2;
-            return Math.sqrt(Math.max(0, s * (s - ab) * (s - bc) * (s - ca)));
-        }
     </script>
 </body>
 </html>
