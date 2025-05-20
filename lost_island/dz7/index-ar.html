@@ -8,10 +8,10 @@
   </head>
   <body style="margin: 0; overflow: hidden">
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;">
-      <a-assets>
-        <img id="earthTexture" src="earth.jpg" crossorigin="anonymous" />
-        <img id="moonTexture" src="moon.jpg" crossorigin="anonymous" />
-      </a-assets>
+<a-assets timeout="1000000">
+  <img id="earthTexture" src="earth.jpg" crossorigin="anonymous" />
+  <img id="moonTexture" src="moon.jpg" crossorigin="anonymous" />
+</a-assets>
 
       <!-- Маркер -->
       <a-marker type="pattern" url="earth-marker.patt">
