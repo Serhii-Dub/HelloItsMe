@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Земля-Місяць — AR.js</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden">
+    <a-scene embedded arjs="sourceType: webcam;">
+      <a-marker type="pattern" url="earth-marker.patt">
+        <a-entity scale="0.1 0.1 0.1" rotation="-90 0 0">
+          <!-- Земля -->
+          <a-sphere id="earth" radius="1" segments-height="32" src="#earthTexture"
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 5080"></a-sphere>
+
+          <!-- Місяць -->
+          <a-entity id="moon-orbit" animation="property: rotation; to: 0 360 0; loop: true; dur: 142240">
+            <a-sphere position="3 0 0" radius="0.27" segments-height="32" src="#moonTexture"></a-sphere>
+          </a-entity>
+        </a-entity>
+      </a-marker>
+
+      <!-- Камера -->
+      <a-entity camera></a-entity>
+
+      <a-assets>
+        <img id="earthTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/earth.jpg">
+        <img id="moonTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/moon.jpg">
+      </a-assets>
+    </a-scene>
+  </body>
+</html>
