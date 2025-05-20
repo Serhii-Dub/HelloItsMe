@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Земля-Місяць — MindAR</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
+  </head>
+  <body>
+    <a-scene mindar-image="imageTargetSrc: ./earth-targets.mind; autoStart: true;" 
+             color-space="sRGB" embedded renderer="colorManagement: true, physicallyCorrectLights">
+      <a-assets>
+        <img id="earthTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/earth.jpg">
+        <img id="moonTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/moon.jpg">
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls></a-camera>
+
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-entity scale="0.1 0.1 0.1" rotation="-90 0 0">
+          <a-sphere radius="1" src="#earthTexture"
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 5080"></a-sphere>
+
+          <a-entity animation="property: rotation; to: 0 360 0; loop: true; dur: 142240">
+            <a-sphere position="3 0 0" radius="0.27" src="#moonTexture"></a-sphere>
+          </a-entity>
+        </a-entity>
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
