@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Земля-Місяць</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <!-- Додаємо компонент анімації -->
   <script src="https://aframe.io/releases/1.4.0/aframe-extras.min.js"></script>
 </head>
 <body>
@@ -15,22 +14,19 @@
     
     <!-- Попереднє завантаження текстур -->
     <a-assets>
-      <img id="earth-texture" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_atmos_2048.jpg">
-      <img id="earth-bump" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_normal_2048.jpg">
-      <img id="earth-specular" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_specular_2048.jpg">
-      <img id="moon-texture" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/moon_1024.jpg">
+      <img id="earth-texture" src="earth.jpg">
+      <img id="moon-texture" src="moon.jpg">
     </a-assets>
     
-    <!-- Джерело світла (Сонце) -->
-    <a-light type="point" intensity="0.8" position="300 0 0" color="#FFFACD"></a-light>
+    <!-- Джерело світла -->
+    <a-light type="point" intensity="0.8" position="30 0 0" color="#FFFACD"></a-light>
     
     <!-- Земля -->
     <a-entity id="earth" position="0 1.6 -5">
       <a-sphere radius="1" 
                 segments-height="64" 
                 segments-width="64"
-                material="src: #earth-texture; bumpMap: #earth-bump; bumpScale: 0.05; specularMap: #earth-specular; shininess: 10">
-        <!-- Анімація обертання Землі (1 оберт за 5 секунд - масштаб 1:17000) -->
+                material="src: #earth-texture">
         <a-animation attribute="rotation" 
                      dur="5000" 
                      to="0 360 0" 
@@ -44,7 +40,6 @@
                   segments-height="32" 
                   segments-width="32"
                   material="src: #moon-texture">
-          <!-- Анімація обертання Місяця навколо Землі (28 діб = 140 секунд) -->
           <a-animation attribute="rotation" 
                        dur="140000" 
                        to="0 360 0" 
