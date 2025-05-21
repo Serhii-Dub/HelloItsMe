@@ -1,47 +1,61 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Земля та Місяць — VR</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  </head>
-  <body>
-    <a-scene>
-     <a-assets>
-    <img id="earth" src="earth.jpg" crossorigin="anonymous">
-    <img id="moon" src="moon.jpg" crossorigin="anonymous">
-</a-assets>
-
-
-      <!-- Світло -->
-      <a-entity light="type: directional; intensity: 1" position="300 0 0"></a-entity>
-
-      <!-- Камера -->
-      <a-camera position="0 1.6 20000"></a-camera>
-
-      <!-- Земля -->
-      <a-sphere id="earth"
-        position="0 0 0"
-        radius="6400"
-        segments-height="64"
-        segments-width="64"
-        src="#earthTexture"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 5080">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Земля-Місяць</title>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <!-- Додаємо компонент анімації -->
+  <script src="https://aframe.io/releases/1.4.0/aframe-extras.min.js"></script>
+</head>
+<body>
+  <a-scene>
+    <!-- Небо з зірками -->
+    <a-sky src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/starfield.png" rotation="0 0 15"></a-sky>
+    
+    <!-- Попереднє завантаження текстур -->
+    <a-assets>
+      <img id="earth-texture" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_atmos_2048.jpg">
+      <img id="earth-bump" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_normal_2048.jpg">
+      <img id="earth-specular" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_specular_2048.jpg">
+      <img id="moon-texture" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/moon_1024.jpg">
+    </a-assets>
+    
+    <!-- Джерело світла (Сонце) -->
+    <a-light type="point" intensity="0.8" position="300 0 0" color="#FFFACD"></a-light>
+    
+    <!-- Земля -->
+    <a-entity id="earth" position="0 1.6 -5">
+      <a-sphere radius="1" 
+                segments-height="64" 
+                segments-width="64"
+                material="src: #earth-texture; bumpMap: #earth-bump; bumpScale: 0.05; specularMap: #earth-specular; shininess: 10">
+        <!-- Анімація обертання Землі (1 оберт за 5 секунд - масштаб 1:17000) -->
+        <a-animation attribute="rotation" 
+                     dur="5000" 
+                     to="0 360 0" 
+                     easing="linear" 
+                     repeat="indefinite"></a-animation>
       </a-sphere>
-
+      
       <!-- Місяць -->
-      <a-entity id="moon-orbit" animation="property: rotation; to: 0 360 0; loop: true; dur: 142240">
-        <a-sphere
-          position="10000 0 0"
-          radius="1740"
-          segments-height="64"
-          segments-width="64"
-          src="#moonTexture">
+      <a-entity id="moon" position="2.7 0 0">
+        <a-sphere radius="0.272" 
+                  segments-height="32" 
+                  segments-width="32"
+                  material="src: #moon-texture">
+          <!-- Анімація обертання Місяця навколо Землі (28 діб = 140 секунд) -->
+          <a-animation attribute="rotation" 
+                       dur="140000" 
+                       to="0 360 0" 
+                       easing="linear" 
+                       repeat="indefinite"></a-animation>
         </a-sphere>
       </a-entity>
-
-      <!-- Підлога (опціонально) -->
-      <a-plane rotation="-90 0 0" width="50000" height="50000" color="#111"></a-plane>
-    </a-scene>
-  </body>
+    </a-entity>
+    
+    <!-- Камера -->
+    <a-camera position="0 1.6 0"></a-camera>
+  </a-scene>
+</body>
 </html>
