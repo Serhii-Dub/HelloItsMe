@@ -7,23 +7,23 @@
   </head>
   <body>
     <a-scene>
-      <!-- Текстури -->
       <a-assets>
-        <img id="earthTexture" src="earth.jpg">
-        <img id="moonTexture" src="moon.jpg">
+        <img id="earthTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/earth.jpg" />
+        <img id="moonTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/moon.jpg" />
       </a-assets>
 
       <!-- Світло -->
-      <a-entity light="type: directional; intensity: 1" position="30 10 0"></a-entity>
+      <a-entity light="type: directional; intensity: 1" position="300 0 0"></a-entity>
 
       <!-- Камера -->
-      <a-camera position="0 1.6 10"></a-camera>
+      <a-camera position="0 1.6 20000"></a-camera>
 
       <!-- Земля -->
       <a-sphere id="earth"
-        position="0 1.5 0"
-        radius="1"
-        segments-height="32"
+        position="0 0 0"
+        radius="6400"
+        segments-height="64"
+        segments-width="64"
         src="#earthTexture"
         animation="property: rotation; to: 0 360 0; loop: true; dur: 5080">
       </a-sphere>
@@ -31,15 +31,16 @@
       <!-- Місяць -->
       <a-entity id="moon-orbit" animation="property: rotation; to: 0 360 0; loop: true; dur: 142240">
         <a-sphere
-          position="3 1.5 0"
-          radius="0.27"
-          segments-height="32"
+          position="10000 0 0"
+          radius="1740"
+          segments-height="64"
+          segments-width="64"
           src="#moonTexture">
         </a-sphere>
       </a-entity>
 
-      <!-- Земля -->
-      <a-plane rotation="-90 0 0" width="100" height="100" color="#222"></a-plane>
+      <!-- Підлога (опціонально) -->
+      <a-plane rotation="-90 0 0" width="50000" height="50000" color="#111"></a-plane>
     </a-scene>
   </body>
 </html>
