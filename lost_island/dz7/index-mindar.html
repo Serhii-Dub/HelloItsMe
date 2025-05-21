@@ -9,10 +9,11 @@
   <body>
     <a-scene mindar-image="imageTargetSrc: ./earth-targets.mind; autoStart: true;" 
              color-space="sRGB" embedded renderer="colorManagement: true, physicallyCorrectLights">
-      <a-assets>
-        <img id="earthTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/earth.jpg">
-        <img id="moonTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/moon.jpg">
-      </a-assets>
+   <a-assets>
+    <img id="earth" src="earth.jpg" crossorigin="anonymous">
+    <img id="moon" src="moon.jpg" crossorigin="anonymous">
+</a-assets>
+
 
       <a-camera position="0 0 0" look-controls></a-camera>
 
