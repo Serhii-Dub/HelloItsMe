@@ -9,18 +9,16 @@
   <script src="https://aframe.io/releases/1.4.0/aframe-extras.min.js"></script>
 </head>
 <body>
-  <a-scene mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 1;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+  <a-scene mindar-image="imageTargetSrc: earth-targets.mind; maxTrack: 1;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
     <!-- Попереднє завантаження текстур -->
     <a-assets>
-      <img id="earth-texture" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_atmos_2048.jpg">
-      <img id="earth-bump" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_normal_2048.jpg">
-      <img id="earth-specular" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_specular_2048.jpg">
-      <img id="moon-texture" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/moon_1024.jpg">
+      <img id="earth-texture" src="earth.jpg">
+      <img id="moon-texture" src="moon.jpg">
     </a-assets>
     
-    <!-- Маркер з зображенням Землі -->
+    <!-- Маркер -->
     <a-entity mindar-image-target="targetIndex: 0">
-      <!-- Модель Земля-Місяць (масштаб 0.1) -->
+      <!-- Модель Земля-Місяць -->
       <a-entity position="0 0 0" scale="0.1 0.1 0.1">
         <!-- Джерело світла -->
         <a-light type="point" intensity="0.8" position="30 0 0" color="#FFFACD"></a-light>
@@ -30,7 +28,7 @@
           <a-sphere radius="1" 
                     segments-height="64" 
                     segments-width="64"
-                    material="src: #earth-texture; bumpMap: #earth-bump; bumpScale: 0.05; specularMap: #earth-specular; shininess: 10">
+                    material="src: #earth-texture">
             <a-animation attribute="rotation" 
                          dur="5000" 
                          to="0 360 0" 
