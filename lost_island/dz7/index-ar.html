@@ -1,39 +1,62 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Земля-Місяць — MindAR</title>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
-  </head>
-  <body>
-    <a-scene mindar-image="imageTargetSrc: earth-targets.mind; autoStart: true;"
-             color-space="sRGB" embedded
-             renderer="colorManagement: true, physicallyCorrectLights">
-     <a-assets>
-    <img id="earth" src="earth.jpg" crossorigin="anonymous">
-    <img id="moon" src="moon.jpg" crossorigin="anonymous">
-</a-assets>
-
-
-      <a-camera position="0 0 0" look-controls></a-camera>
-
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-entity scale="0.01 0.01 0.01" rotation="-90 0 0">
-          <!-- Земля -->
-          <a-sphere radius="6400" src="#earthTexture"
-                    segments-height="64" segments-width="64"
-                    animation="property: rotation; to: 0 360 0; loop: true; dur: 5080">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Земля-Місяць AR (AR.js)</title>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <script src="https://aframe.io/releases/1.4.0/aframe-extras.min.js"></script>
+</head>
+<body>
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <!-- Попереднє завантаження текстур -->
+    <a-assets>
+      <img id="earth-texture" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_atmos_2048.jpg">
+      <img id="earth-bump" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_normal_2048.jpg">
+      <img id="earth-specular" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_specular_2048.jpg">
+      <img id="moon-texture" src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/moon_1024.jpg">
+    </a-assets>
+    
+    <!-- Маркер Hiro -->
+    <a-marker preset="hiro">
+      <!-- Модель Земля-Місяць (масштаб 0.1) -->
+      <a-entity position="0 0 0" scale="0.1 0.1 0.1">
+        <!-- Джерело світла -->
+        <a-light type="point" intensity="0.8" position="30 0 0" color="#FFFACD"></a-light>
+        
+        <!-- Земля -->
+        <a-entity id="earth" position="0 0 0">
+          <a-sphere radius="1" 
+                    segments-height="64" 
+                    segments-width="64"
+                    material="src: #earth-texture; bumpMap: #earth-bump; bumpScale: 0.05; specularMap: #earth-specular; shininess: 10">
+            <a-animation attribute="rotation" 
+                         dur="5000" 
+                         to="0 360 0" 
+                         easing="linear" 
+                         repeat="indefinite"></a-animation>
           </a-sphere>
-
+          
           <!-- Місяць -->
-          <a-entity animation="property: rotation; to: 0 360 0; loop: true; dur: 142240">
-            <a-sphere position="10000 0 0" radius="1740" src="#moonTexture"
-                      segments-height="64" segments-width="64">
+          <a-entity id="moon" position="2.7 0 0">
+            <a-sphere radius="0.272" 
+                      segments-height="32" 
+                      segments-width="32"
+                      material="src: #moon-texture">
+              <a-animation attribute="rotation" 
+                           dur="140000" 
+                           to="0 360 0" 
+                           easing="linear" 
+                           repeat="indefinite"></a-animation>
             </a-sphere>
           </a-entity>
         </a-entity>
       </a-entity>
-    </a-scene>
-  </body>
+    </a-marker>
+    
+    <!-- AR камера -->
+    <a-entity camera></a-entity>
+  </a-scene>
+</body>
 </html>
