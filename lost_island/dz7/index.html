@@ -3,14 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Земля-Місяць</title>
+  <title>Земля-Місяць VR</title>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://aframe.io/releases/1.4.0/aframe-extras.min.js"></script>
+  <!-- Пуста фавіконка для уникнення помилки -->
+  <link rel="icon" href="data:,">
 </head>
 <body>
   <a-scene>
-    <!-- Небо з зірками -->
-    <a-sky src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/starfield.png" rotation="0 0 15"></a-sky>
+    <!-- Зірчасте небо з Pixabay -->
+    <a-sky src="https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_1280.jpg" rotation="0 0 15"></a-sky>
     
     <!-- Попереднє завантаження текстур -->
     <a-assets>
@@ -18,7 +20,7 @@
       <img id="moon-texture" src="moon.jpg">
     </a-assets>
     
-    <!-- Джерело світла -->
+    <!-- Джерело світла (Сонце) -->
     <a-light type="point" intensity="0.8" position="30 0 0" color="#FFFACD"></a-light>
     
     <!-- Земля -->
@@ -27,6 +29,7 @@
                 segments-height="64" 
                 segments-width="64"
                 material="src: #earth-texture">
+        <!-- Анімація обертання Землі (1 оберт за 5 секунд) -->
         <a-animation attribute="rotation" 
                      dur="5000" 
                      to="0 360 0" 
@@ -40,6 +43,7 @@
                   segments-height="32" 
                   segments-width="32"
                   material="src: #moon-texture">
+          <!-- Анімація обертання Місяця навколо Землі (140 секунд) -->
           <a-animation attribute="rotation" 
                        dur="140000" 
                        to="0 360 0" 
