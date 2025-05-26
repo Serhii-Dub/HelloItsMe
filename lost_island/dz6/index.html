@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AR Geometry Calculator</title>
-    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAA">
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
         body {
             margin: 0;
@@ -19,21 +20,18 @@
             display: block;
         }
     </style>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-aframe.prod.js"></script>
 </head>
 <body>
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 4; showStats: false; uiLoading: no; uiScanning: no; uiError: no;"
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; maxTrack: 4; showStats: false;" 
              vr-mode-ui="enabled: false"
              renderer="logarithmicDepthBuffer: true; antialias: true;"
-             background="color: #000000"
-             loading-screen="enabled: false">
+             background="color: #000000">
 
-        <!-- Освітлення -->
+        <!-- Освещение -->
         <a-light type="ambient" color="#404040"></a-light>
         <a-light type="directional" position="0 1 0" color="#ffffff"></a-light>
 
-        <!-- Маркери A, B, C, D з підключеним registerevents -->
+        <!-- Маркеры A, B, C, D -->
         <a-entity mindar-image-target="targetIndex: 0" id="A" registerevents>
             <a-sphere color="red" radius="0.10"></a-sphere>
             <a-entity id="AB"></a-entity>
@@ -62,7 +60,7 @@
     </a-scene>
 
     <script>
-        // Глобальні змінні
+        // Глобальные переменные
         let markerVisible = { A: false, B: false, C: false, D: false };
         let coord = { 
             A: new THREE.Vector3(), 
@@ -71,246 +69,158 @@
             D: new THREE.Vector3() 
         };
 
-        // Чекаємо завантаження A-Frame
-        if (typeof AFRAME !== 'undefined') {
-            initComponents();
-        } else {
-            document.addEventListener('DOMContentLoaded', initComponents);
-        }
+        // Компонент для регистрации событий маркеров
+        AFRAME.registerComponent('registerevents', {
+            init: function () {
+                let marker = this.el;
+                
+                marker.addEventListener('targetFound', function() {
+                    markerVisible[marker.id] = true;
+                    console.log(`${marker.id} found`);
+                });
+                
+                marker.addEventListener('targetLost', function() {
+                    markerVisible[marker.id] = false;
+                    console.log(`${marker.id} lost`);
+                });
+            }
+        });
 
-        function initComponents() {
-            // Реєструємо компонент для подій маркерів
-            AFRAME.registerComponent('registerevents', {
-                init: function () {
-                    let marker = this.el;
-                    
-                    // Використовуємо newer API
-                    marker.addEventListener('targetFound', function() {
-                        markerVisible[marker.id] = true;
-                        console.log(`${marker.id} знайдено`);
-                    });
-                    
-                    marker.addEventListener('targetLost', function() {
-                        markerVisible[marker.id] = false;
-                        console.log(`${marker.id} втрачено`);
-                    });
-                }
-            });
+        // Основной компонент для вычислений
+        AFRAME.registerComponent('run', {
+            init: function () {
+                // Ссылки на объекты
+                this.A = document.getElementById("A").object3D;
+                this.B = document.getElementById("B").object3D;
+                this.C = document.getElementById("C").object3D;
+                this.D = document.getElementById("D").object3D;
+                
+                // Линии между маркерами
+                this.AB = document.getElementById("AB").object3D;
+                this.AC = document.getElementById("AC").object3D;
+                this.AD = document.getElementById("AD").object3D;
+                this.BC = document.getElementById("BC").object3D;
+                this.BD = document.getElementById("BD").object3D;
+                this.CD = document.getElementById("CD").object3D;
 
-            // Основний компонент для обчислень
-            AFRAME.registerComponent('run', {
-                init: function () {
-                    this.initialized = false;
-                    
-                    // Чекаємо готовність сцени
-                    const scene = document.querySelector('a-scene');
-                    if (scene.hasLoaded) {
-                        this.setupComponents();
-                    } else {
-                        scene.addEventListener('loaded', () => {
-                            this.setupComponents();
-                        });
-                    }
-                },
+                // Создаем геометрию и материалы для линий
+                const geometry = new THREE.CylinderGeometry(0.01, 0.01, 1, 8);
+                geometry.translate(0, 0.5, 0);
+                geometry.rotateX(Math.PI / 2);
+                
+                const materialSide = new THREE.MeshBasicMaterial({color: 0x00FF00});
+                const materialDiag = new THREE.MeshBasicMaterial({color: 0xFF0000});
+                
+                // Создаем линии
+                this.cAB = new THREE.Mesh(geometry.clone(), materialSide);
+                this.cAC = new THREE.Mesh(geometry.clone(), materialDiag);
+                this.cAD = new THREE.Mesh(geometry.clone(), materialSide);
+                this.cBC = new THREE.Mesh(geometry.clone(), materialSide);
+                this.cBD = new THREE.Mesh(geometry.clone(), materialDiag);
+                this.cCD = new THREE.Mesh(geometry.clone(), materialSide);
+                
+                // Добавляем к сцене
+                this.AB.add(this.cAB); this.cAB.visible = false;
+                this.AC.add(this.cAC); this.cAC.visible = false;
+                this.AD.add(this.cAD); this.cAD.visible = false;
+                this.BC.add(this.cBC); this.cBC.visible = false;
+                this.BD.add(this.cBD); this.cBD.visible = false;
+                this.CD.add(this.cCD); this.cCD.visible = false;
 
-                updateLine: function(lineObj, meshObj, start, end, visible) {
-                    if (!visible) {
-                        meshObj.visible = false;
-                        return;
-                    }
-
-                    const distance = start.distanceTo(end);
-                    const direction = new THREE.Vector3().subVectors(end, start).normalize();
-                    
-                    // Оновлюємо позицію та орієнтацію
-                    lineObj.position.copy(start);
-                    lineObj.lookAt(end);
-                    meshObj.scale.set(1, 1, distance);
-                    meshObj.visible = true;
-                },
-
-                setupComponents: function() {
-                    try {
-                        // Отримуємо посилання на об'єкти з перевіркою
-                        const elemA = document.getElementById("A");
-                        const elemB = document.getElementById("B");
-                        const elemC = document.getElementById("C");
-                        const elemD = document.getElementById("D");
-
-                        if (!elemA || !elemB || !elemC || !elemD) {
-                            console.error("Не всі маркери знайдені");
-                            return;
-                        }
-
-                        this.A = elemA.object3D;
-                        this.B = elemB.object3D;
-                        this.C = elemC.object3D;
-                        this.D = elemD.object3D;
-                        
-                        // Лінії між маркерами
-                        this.AB = document.getElementById("AB").object3D;
-                        this.AC = document.getElementById("AC").object3D;
-                        this.AD = document.getElementById("AD").object3D;
-                        this.BC = document.getElementById("BC").object3D;
-                        this.BD = document.getElementById("BD").object3D;
-                        this.CD = document.getElementById("CD").object3D;
-
-                        // Створюємо геометрію та матеріали
-                        const geometry = new THREE.CylinderGeometry(0.01, 0.01, 1, 8);
-                        geometry.translate(0, 0.5, 0);
-                        geometry.rotateX(Math.PI / 2);
-                        
-                        const materialRed = new THREE.MeshBasicMaterial({color: 0xFF0000});
-                        const materialGreen = new THREE.MeshBasicMaterial({color: 0x00FF00});
-                        const materialBlue = new THREE.MeshBasicMaterial({color: 0x0000FF});
-                        
-                        // Створюємо лінії
-                        this.cAB = new THREE.Mesh(geometry.clone(), materialGreen);
-                        this.cAC = new THREE.Mesh(geometry.clone(), materialBlue);
-                        this.cAD = new THREE.Mesh(geometry.clone(), materialGreen);
-                        this.cBC = new THREE.Mesh(geometry.clone(), materialGreen);
-                        this.cBD = new THREE.Mesh(geometry.clone(), materialBlue);
-                        this.cCD = new THREE.Mesh(geometry.clone(), materialGreen);
-                        
-                        // Додаємо до сцени
-                        this.AB.add(this.cAB); this.cAB.visible = false;
-                        this.AC.add(this.cAC); this.cAC.visible = false;
-                        this.AD.add(this.cAD); this.cAD.visible = false;
-                        this.BC.add(this.cBC); this.cBC.visible = false;
-                        this.BD.add(this.cBD); this.cBD.visible = false;
-                        this.CD.add(this.cCD); this.cCD.visible = false;
-
-                        this.initialized = true;
-                        console.log("Ініціалізація завершена успішно");
-                        
-                    } catch (error) {
-                        console.error("Помилка ініціалізації:", error);
-                        setTimeout(() => this.setupComponents(), 2000);
-                    }
-                },
+                this.materialSide = materialSide;
+                this.materialDiag = materialDiag;
+            },
             
             tick: function () {
-                // Перевіряємо, чи компонент ініціалізований
-                if (!this.initialized) return;
+                // Обновляем координаты
+                this.A.getWorldPosition(coord['A']);
+                this.B.getWorldPosition(coord['B']);
+                this.C.getWorldPosition(coord['C']);
+                this.D.getWorldPosition(coord['D']);
 
-                try {
-                    // Оновлюємо координати
-                    this.A.getWorldPosition(coord['A']);
-                    this.B.getWorldPosition(coord['B']);
-                    this.C.getWorldPosition(coord['C']);
-                    this.D.getWorldPosition(coord['D']);
-
-                // Спочатку ховаємо всі лінії
-                this.cAB.visible = false;
-                this.cAC.visible = false;
-                this.cAD.visible = false;
-                this.cBC.visible = false;
-                this.cBD.visible = false;
-                this.cCD.visible = false;
-
-                // Показуємо лінії тільки між видимими маркерами
-                if(markerVisible["A"] && markerVisible["B"]) {
-                    let distance = coord['A'].distanceTo(coord['B']);
-                    this.AB.lookAt(coord['B']);
-                    this.cAB.scale.set(1,1,distance);
-                    this.cAB.material = this.materialQuad; // Сторона чотирикутника
-                    this.cAB.visible = true;
-                }
-                if(markerVisible["B"] && markerVisible["C"]) {
-                    let distance = coord['B'].distanceTo(coord['C']);
-                    this.BC.lookAt(coord['C']);
-                    this.cBC.scale.set(1,1,distance);
-                    this.cBC.material = this.materialQuad; // Сторона чотирикутника
-                    this.cBC.visible = true;
-                }
-                if(markerVisible["C"] && markerVisible["D"]) {
-                    let distance = coord['C'].distanceTo(coord['D']);
-                    this.CD.lookAt(coord['D']);
-                    this.cCD.scale.set(1,1,distance);
-                    this.cCD.material = this.materialQuad; // Сторона чотирикутника
-                    this.cCD.visible = true;
-                }
-                if(markerVisible["D"] && markerVisible["A"]) {
-                    let distance = coord['D'].distanceTo(coord['A']);
-                    this.AD.lookAt(coord['A']);
-                    this.cAD.scale.set(1,1,distance);
-                    this.cAD.material = this.materialQuad; // Сторона чотирикутника
-                    this.cAD.visible = true;
-                }
+                // Обновляем линии между видимыми маркерами
+                this.updateLine(this.AB, this.cAB, coord['A'], coord['B'], markerVisible["A"] && markerVisible["B"]);
+                this.updateLine(this.BC, this.cBC, coord['B'], coord['C'], markerVisible["B"] && markerVisible["C"]);
+                this.updateLine(this.CD, this.cCD, coord['C'], coord['D'], markerVisible["C"] && markerVisible["D"]);
+                this.updateLine(this.AD, this.cAD, coord['A'], coord['D'], markerVisible["A"] && markerVisible["D"]);
                 
-                // Діагоналі (показуємо тільки якщо всі маркери видимі)
+                // Диагонали (показываем только если все маркеры видны)
                 if(markerVisible["A"] && markerVisible["B"] && markerVisible["C"] && markerVisible["D"]) {
-                    if(markerVisible["A"] && markerVisible["C"]) {
-                        let distance = coord['A'].distanceTo(coord['C']);
-                        this.AC.lookAt(coord['C']);
-                        this.cAC.scale.set(1,1,distance);
-                        this.cAC.material = this.materialDiag; // Діагональ
-                        this.cAC.visible = true;
-                    }
-                    if(markerVisible["B"] && markerVisible["D"]) {
-                        let distance = coord['B'].distanceTo(coord['D']);
-                        this.BD.lookAt(coord['D']);
-                        this.cBD.scale.set(1,1,distance);
-                        this.cBD.material = this.materialDiag; // Діагональ
-                        this.cBD.visible = true;
-                    }
+                    this.updateLine(this.AC, this.cAC, coord['A'], coord['C'], true);
+                    this.updateLine(this.BD, this.cBD, coord['B'], coord['D'], true);
+                } else {
+                    this.cAC.visible = false;
+                    this.cBD.visible = false;
                 }
 
-                // Розширені обчислення для чотирикутника та всіх трикутників
+                // Вычисления для четырехугольника и треугольников
                 if(markerVisible["A"] && markerVisible["B"] && markerVisible["C"] && markerVisible["D"]) {
-                    // Довжини сторін чотирикутника
+                    // Длины сторон четырехугольника
                     const lenAB = coord['A'].distanceTo(coord['B']);
                     const lenBC = coord['B'].distanceTo(coord['C']);
                     const lenCD = coord['C'].distanceTo(coord['D']);
                     const lenDA = coord['D'].distanceTo(coord['A']);
                     
-                    // Довжини діагоналей
+                    // Длины диагоналей
                     const lenAC = coord['A'].distanceTo(coord['C']);
                     const lenBD = coord['B'].distanceTo(coord['D']);
                     
-                    // Периметр чотирикутника
+                    // Периметр четырехугольника
                     const perimeter = lenAB + lenBC + lenCD + lenDA;
                     
-                    // Функція для площі трикутника за формулою Герона
+                    // Функция для площади треугольника по формуле Герона
                     const triangleArea = (a, b, c) => {
                         const p = (a + b + c) / 2;
                         const area = p * (p - a) * (p - b) * (p - c);
                         return area > 0 ? Math.sqrt(area) : 0;
                     };
                     
-                    // Площі всіх можливих трикутників
+                    // Площади всех возможных треугольников
                     const areaABC = triangleArea(lenAB, lenBC, lenAC);
                     const areaABD = triangleArea(lenAB, lenBD, lenDA);
                     const areaACD = triangleArea(lenAC, lenCD, lenDA);
                     const areaBCD = triangleArea(lenBC, lenCD, lenBD);
                     
-                    // Оновлюємо текст з результатами
+                    // Обновляем текст с результатами
                     const PS = document.getElementById("PS");
                     PS.setAttribute("value", 
-                        `ЧОТИРИКУТНИК ABCD\n` +
+                        `ЧЕТЫРЕХУГОЛЬНИК ABCD\n` +
                         `Периметр: ${perimeter.toFixed(3)}\n` +
-                        `\nПлощі трикутників:\n` +
+                        `\nПлощади треугольников:\n` +
                         `△ABC: ${areaABC.toFixed(3)}\n` +
                         `△ABD: ${areaABD.toFixed(3)}\n` +
                         `△ACD: ${areaACD.toFixed(3)}\n` +
                         `△BCD: ${areaBCD.toFixed(3)}\n` +
-                        `\nСуми площ:\n` +
+                        `\nСуммы площадей:\n` +
                         `ABC+ACD: ${(areaABC + areaACD).toFixed(3)}\n` +
                         `ABD+BCD: ${(areaABD + areaBCD).toFixed(3)}`
                     );
                 } else {
-                    // Показуємо інструкції, якщо не всі маркери видимі
+                    // Показываем инструкции, если не все маркеры видны
                     const visibleCount = Object.values(markerVisible).filter(v => v).length;
                     const PS = document.getElementById("PS");
                     PS.setAttribute("value", 
-                        `Розмістіть маркери A, B, C, D\n` +
-                        `Знайдено: ${visibleCount}/4 маркерів\n` +
-                        `Потрібно ще: ${4 - visibleCount} маркерів`
+                        `Разместите маркеры A, B, C, D\n` +
+                        `Найдено: ${visibleCount}/4 маркеров\n` +
+                        `Нужно еще: ${4 - visibleCount} маркеров`
                     );
                 }
-                } catch (error) {
-                    console.error("Помилка в tick:", error);
+            },
+            
+            updateLine: function(lineObj, meshObj, start, end, visible) {
+                if (!visible) {
+                    meshObj.visible = false;
+                    return;
                 }
+
+                const distance = start.distanceTo(end);
+                const direction = new THREE.Vector3().subVectors(end, start).normalize();
+                
+                // Обновляем позицию и ориентацию
+                lineObj.position.copy(start);
+                lineObj.lookAt(end);
+                meshObj.scale.set(1, 1, distance);
+                meshObj.visible = true;
             }
         });
     </script>
