@@ -21,31 +21,31 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 </head>
 <body>
-    <a-scene mindar-image="imageTargetSrc: https://raw.githubusercontent.com/hiukim/mind-ar-js/master/examples/image-tracking/assets/card-example/card.mind;"
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind;"
              vr-mode-ui="enabled: false"
              renderer="logarithmicDepthBuffer: true;">
 
-        <!-- Маркери A, B, C, D -->
-        <a-entity mindar-image-target="targetIndex: 0" id="A">
+        <!-- Маркери A, B, C, D з підключеним registerevents -->
+        <a-entity mindar-image-target="targetIndex: 0" id="A" registerevents>
             <a-sphere color="red" radius="0.10"></a-sphere>
             <a-entity id="AB"></a-entity>
             <a-entity id="AC"></a-entity>
             <a-entity id="AD"></a-entity>
-            <a-text id="PS" color="yellow" value="Place markers A, B, C, D" position="0 0.3 0" rotation="-90 0 0"></a-text>
+            <a-text id="PS" color="white" value="Place markers A, B, C, D" position="0 0.3 0" rotation="-90 0 0" scale="2 2 2"></a-text>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 1" id="B">
+        <a-entity mindar-image-target="targetIndex: 1" id="B" registerevents>
             <a-sphere color="blue" radius="0.10"></a-sphere>
             <a-entity id="BC"></a-entity>
             <a-entity id="BD"></a-entity>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 2" id="C">
+        <a-entity mindar-image-target="targetIndex: 2" id="C" registerevents>
             <a-sphere color="green" radius="0.10"></a-sphere>
             <a-entity id="CD"></a-entity>
         </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 3" id="D">
+        <a-entity mindar-image-target="targetIndex: 3" id="D" registerevents>
             <a-sphere color="yellow" radius="0.10"></a-sphere>
         </a-entity>
 
@@ -63,7 +63,7 @@
             D: new THREE.Vector3() 
         };
 
-        // 2. Реєструємо компонент для подій маркерів (аналогічно до коду викладача)
+        // 2. Реєструємо компонент для подій маркерів
         AFRAME.registerComponent('registerevents', {
             init: function () {
                 let marker = this.el;
@@ -78,16 +78,16 @@
             }
         });
 
-        // 3. Основний компонент для обчислень (адаптовано з коду викладача)
+        // 3. Основний компонент для обчислень
         AFRAME.registerComponent('run', {
             init: function () {
-                // Отримуємо посилання на об'єкти (тільки A, B, C, D)
+                // Отримуємо посилання на об'єкти
                 this.A = document.getElementById("A").object3D;
                 this.B = document.getElementById("B").object3D;
                 this.C = document.getElementById("C").object3D;
                 this.D = document.getElementById("D").object3D;
                 
-                // Лінії між маркерами (тільки потрібні для A, B, C, D)
+                // Лінії між маркерами
                 this.AB = document.getElementById("AB").object3D;
                 this.AC = document.getElementById("AC").object3D;
                 this.AD = document.getElementById("AD").object3D;
@@ -95,9 +95,9 @@
                 this.BD = document.getElementById("BD").object3D;
                 this.CD = document.getElementById("CD").object3D;
 
-                // Створюємо лінії (циліндри) - аналогічно до коду викладача
-                let material = new THREE.MeshLambertMaterial({color:0xFF0000});
-                let geometry = new THREE.CylinderGeometry(0.05, 0.05, 1, 12);
+                // Створюємо лінії (циліндри)
+                let material = new THREE.MeshLambertMaterial({color: 0xFF0000});
+                let geometry = new THREE.CylinderGeometry(0.02, 0.02, 1, 8);
                 
                 geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0.5, 0));
                 geometry.applyMatrix4(new THREE.Matrix4().makeRotationX(THREE.MathUtils.degToRad(90)));
@@ -109,74 +109,74 @@
                 this.cBD = new THREE.Mesh(geometry, material); this.BD.add(this.cBD); this.cBD.visible = false;
                 this.cCD = new THREE.Mesh(geometry, material); this.CD.add(this.cCD); this.cCD.visible = false;
 
+                // Створюємо різнокольорові матеріали для сторін чотирикутника
+                this.materialQuad = new THREE.MeshLambertMaterial({color: 0x00FF00}); // Зелений для сторін
+                this.materialDiag = new THREE.MeshLambertMaterial({color: 0x0000FF}); // Синій для діагоналей
+
                 console.log("Ініціалізація завершена");
             },
             
             tick: function () {
-                // Оновлюємо координати (тільки A, B, C, D)
+                // Оновлюємо координати
                 this.A.getWorldPosition(coord['A']);
                 this.B.getWorldPosition(coord['B']);
                 this.C.getWorldPosition(coord['C']);
                 this.D.getWorldPosition(coord['D']);
 
-                // Оновлюємо видимість ліній (спрощено, без F, G)
-                if(!markerVisible["A"]) {
-                    this.cAB.visible = false;
-                    this.cAC.visible = false;
-                    this.cAD.visible = false;
-                }
-                if(!markerVisible["B"]) {
-                    this.cAB.visible = false;
-                    this.cBC.visible = false;
-                    this.cBD.visible = false;
-                }
-                if(!markerVisible["C"]) {
-                    this.cAC.visible = false;
-                    this.cBC.visible = false;
-                    this.cCD.visible = false;
-                }
-                if(!markerVisible["D"]) {
-                    this.cAD.visible = false;
-                    this.cBD.visible = false;
-                    this.cCD.visible = false;
-                }
+                // Спочатку ховаємо всі лінії
+                this.cAB.visible = false;
+                this.cAC.visible = false;
+                this.cAD.visible = false;
+                this.cBC.visible = false;
+                this.cBD.visible = false;
+                this.cCD.visible = false;
 
-                // Оновлюємо лінії між видимими маркерами
+                // Показуємо лінії тільки між видимими маркерами
                 if(markerVisible["A"] && markerVisible["B"]) {
                     let distance = coord['A'].distanceTo(coord['B']);
                     this.AB.lookAt(coord['B']);
                     this.cAB.scale.set(1,1,distance);
+                    this.cAB.material = this.materialQuad; // Сторона чотирикутника
                     this.cAB.visible = true;
-                }
-                if(markerVisible["A"] && markerVisible["C"]) {
-                    let distance = coord['A'].distanceTo(coord['C']);
-                    this.AC.lookAt(coord['C']);
-                    this.cAC.scale.set(1,1,distance);
-                    this.cAC.visible = true;
-                }
-                if(markerVisible["A"] && markerVisible["D"]) {
-                    let distance = coord['A'].distanceTo(coord['D']);
-                    this.AD.lookAt(coord['D']);
-                    this.cAD.scale.set(1,1,distance);
-                    this.cAD.visible = true;
                 }
                 if(markerVisible["B"] && markerVisible["C"]) {
                     let distance = coord['B'].distanceTo(coord['C']);
                     this.BC.lookAt(coord['C']);
                     this.cBC.scale.set(1,1,distance);
+                    this.cBC.material = this.materialQuad; // Сторона чотирикутника
                     this.cBC.visible = true;
-                }
-                if(markerVisible["B"] && markerVisible["D"]) {
-                    let distance = coord['B'].distanceTo(coord['D']);
-                    this.BD.lookAt(coord['D']);
-                    this.cBD.scale.set(1,1,distance);
-                    this.cBD.visible = true;
                 }
                 if(markerVisible["C"] && markerVisible["D"]) {
                     let distance = coord['C'].distanceTo(coord['D']);
                     this.CD.lookAt(coord['D']);
                     this.cCD.scale.set(1,1,distance);
+                    this.cCD.material = this.materialQuad; // Сторона чотирикутника
                     this.cCD.visible = true;
+                }
+                if(markerVisible["D"] && markerVisible["A"]) {
+                    let distance = coord['D'].distanceTo(coord['A']);
+                    this.AD.lookAt(coord['A']);
+                    this.cAD.scale.set(1,1,distance);
+                    this.cAD.material = this.materialQuad; // Сторона чотирикутника
+                    this.cAD.visible = true;
+                }
+                
+                // Діагоналі (показуємо тільки якщо всі маркери видимі)
+                if(markerVisible["A"] && markerVisible["B"] && markerVisible["C"] && markerVisible["D"]) {
+                    if(markerVisible["A"] && markerVisible["C"]) {
+                        let distance = coord['A'].distanceTo(coord['C']);
+                        this.AC.lookAt(coord['C']);
+                        this.cAC.scale.set(1,1,distance);
+                        this.cAC.material = this.materialDiag; // Діагональ
+                        this.cAC.visible = true;
+                    }
+                    if(markerVisible["B"] && markerVisible["D"]) {
+                        let distance = coord['B'].distanceTo(coord['D']);
+                        this.BD.lookAt(coord['D']);
+                        this.cBD.scale.set(1,1,distance);
+                        this.cBD.material = this.materialDiag; // Діагональ
+                        this.cBD.visible = true;
+                    }
                 }
 
                 // Розширені обчислення для чотирикутника та всіх трикутників
@@ -197,7 +197,8 @@
                     // Функція для площі трикутника за формулою Герона
                     const triangleArea = (a, b, c) => {
                         const p = (a + b + c) / 2;
-                        return Math.sqrt(p * (p - a) * (p - b) * (p - c));
+                        const area = p * (p - a) * (p - b) * (p - c);
+                        return area > 0 ? Math.sqrt(area) : 0;
                     };
                     
                     // Площі всіх можливих трикутників
@@ -209,12 +210,25 @@
                     // Оновлюємо текст з результатами
                     const PS = document.getElementById("PS");
                     PS.setAttribute("value", 
-                        `Периметр: ${perimeter.toFixed(2)}\n` +
-                        `Площі трикутників:\n` +
-                        `ABC: ${areaABC.toFixed(2)}\n` +
-                        `ABD: ${areaABD.toFixed(2)}\n` +
-                        `ACD: ${areaACD.toFixed(2)}\n` +
-                        `BCD: ${areaBCD.toFixed(2)}`
+                        `ЧОТИРИКУТНИК ABCD\n` +
+                        `Периметр: ${perimeter.toFixed(3)}\n` +
+                        `\nПлощі трикутників:\n` +
+                        `△ABC: ${areaABC.toFixed(3)}\n` +
+                        `△ABD: ${areaABD.toFixed(3)}\n` +
+                        `△ACD: ${areaACD.toFixed(3)}\n` +
+                        `△BCD: ${areaBCD.toFixed(3)}\n` +
+                        `\nСуми площ:\n` +
+                        `ABC+ACD: ${(areaABC + areaACD).toFixed(3)}\n` +
+                        `ABD+BCD: ${(areaABD + areaBCD).toFixed(3)}`
+                    );
+                } else {
+                    // Показуємо інструкції, якщо не всі маркери видимі
+                    const visibleCount = Object.values(markerVisible).filter(v => v).length;
+                    const PS = document.getElementById("PS");
+                    PS.setAttribute("value", 
+                        `Розмістіть маркери A, B, C, D\n` +
+                        `Знайдено: ${visibleCount}/4 маркерів\n` +
+                        `Потрібно ще: ${4 - visibleCount} маркерів`
                     );
                 }
             }
