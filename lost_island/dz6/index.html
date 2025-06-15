@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AR Чотирикутник</title>
-
+  
   <!-- Бібліотеки -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
     body {
@@ -19,14 +19,15 @@
     
     #info-panel {
       position: absolute;
-      bottom: 20px;
-      left: 20px;
+      bottom: 10px;
+      left: 10px;
       background: rgba(0,0,0,0.7);
       color: white;
-      padding: 15px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 5px;
       max-width: 300px;
       z-index: 100;
+      font-size: 14px;
     }
     
     #loading {
@@ -35,43 +36,56 @@
       left: 50%;
       transform: translate(-50%, -50%);
       color: white;
-      font-size: 24px;
+      background: rgba(0,0,0,0.7);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    
+    .marker-label {
+      font-size: 0.5em;
+      color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 2px 5px;
+      border-radius: 3px;
+      display: inline-block;
+      transform: translateY(0.2em);
     }
   </style>
 </head>
 
 <body>
-  <div id="loading">Завантаження AR...</div>
+  <div id="loading">Зачекайте, йде завантаження AR...</div>
   <div id="info-panel">Наведіть камеру на маркери A, B, C, D</div>
 
-  <a-scene mindar-image="imageTargetSrc: targets.mind; autoStart: true;" 
+  <a-scene mindar-image="imageTargetSrc: targets.mind; autoStart: true; uiLoading: no; uiScanning: no;"
            vr-mode-ui="enabled: false"
            renderer="colorManagement: true; antialias: true;"
            embedded>
 
     <!-- Джерела світла -->
-    <a-light type="ambient" color="#404040"></a-light>
-    <a-light type="directional" position="0 1 0" color="#ffffff"></a-light>
+    <a-light type="ambient" intensity="0.4"></a-light>
+    <a-light type="directional" position="0 1 1" intensity="0.6"></a-light>
 
     <!-- Маркери -->
     <a-entity mindar-image-target="targetIndex: 0" id="A">
-      <a-sphere color="red" radius="0.05"></a-sphere>
-      <a-text value="A" color="white" position="0 0.1 0" align="center"></a-text>
+      <a-sphere color="#FF0000" radius="0.05"></a-sphere>
+      <a-entity position="0 0.1 0" text="value: A; color: white; align: center" class="marker-label"></a-entity>
     </a-entity>
 
     <a-entity mindar-image-target="targetIndex: 1" id="B">
-      <a-sphere color="blue" radius="0.05"></a-sphere>
-      <a-text value="B" color="white" position="0 0.1 0" align="center"></a-text>
+      <a-sphere color="#0000FF" radius="0.05"></a-sphere>
+      <a-entity position="0 0.1 0" text="value: B; color: white; align: center" class="marker-label"></a-entity>
     </a-entity>
 
     <a-entity mindar-image-target="targetIndex: 2" id="C">
-      <a-sphere color="green" radius="0.05"></a-sphere>
-      <a-text value="C" color="white" position="0 0.1 0" align="center"></a-text>
+      <a-sphere color="#00FF00" radius="0.05"></a-sphere>
+      <a-entity position="0 0.1 0" text="value: C; color: white; align: center" class="marker-label"></a-entity>
     </a-entity>
 
     <a-entity mindar-image-target="targetIndex: 3" id="D">
-      <a-sphere color="yellow" radius="0.05"></a-sphere>
-      <a-text value="D" color="white" position="0 0.1 0" align="center"></a-text>
+      <a-sphere color="#FFFF00" radius="0.05"></a-sphere>
+      <a-entity position="0 0.1 0" text="value: D; color: black; align: center" class="marker-label"></a-entity>
     </a-entity>
 
     <!-- Камера -->
@@ -82,9 +96,20 @@
   </a-scene>
 
   <script>
-    // Приховати завантажувач після завантаження сцени
-    document.querySelector('a-scene').addEventListener('loaded', function() {
-      document.getElementById('loading').style.display = 'none';
+    // Очікування повного завантаження A-Frame
+    window.addEventListener('load', function() {
+      const scene = document.querySelector('a-scene');
+      
+      scene.addEventListener('loaded', function() {
+        document.getElementById('loading').style.display = 'none';
+        
+        // Перевірка підтримки AR
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          document.getElementById('info-panel').innerHTML = 
+            "Помилка: Ваш браузер не підтримує AR. Спробуйте Chrome на Android або Safari на iOS.";
+          return;
+        }
+      });
     });
 
     // Основний компонент для обчислень
@@ -104,7 +129,7 @@
         };
         this.infoPanel = document.getElementById('info-panel');
         
-        // Отримати посилання на маркери
+        // Ініціалізація маркерів
         ['A', 'B', 'C', 'D'].forEach((id) => {
           const el = document.getElementById(id);
           el.addEventListener('targetFound', () => {
@@ -122,9 +147,11 @@
       tick: function() {
         if (!this.allMarkersVisible()) return;
         
-        // Оновити позиції
+        // Оновлення позицій
         for (const id in this.markers) {
-          this.markers[id].getWorldPosition(this.positions[id]);
+          if (this.markers[id]) {
+            this.markers[id].getWorldPosition(this.positions[id]);
+          }
         }
         
         this.updateInfo();
@@ -140,7 +167,8 @@
       
       calculateTriangleArea: function(a, b, c) {
         const p = (a + b + c) / 2;
-        return Math.sqrt(p * (p - a) * (p - b) * (p - c));
+        const area = p * (p - a) * (p - b) * (p - c);
+        return area > 0 ? Math.sqrt(area) : 0;
       },
       
       updateInfo: function() {
@@ -151,7 +179,7 @@
           return;
         }
         
-        // Обчислити довжини сторін
+        // Обчислення довжин сторін
         const AB = this.calculateDistance(this.positions.A, this.positions.B);
         const BC = this.calculateDistance(this.positions.B, this.positions.C);
         const CD = this.calculateDistance(this.positions.C, this.positions.D);
@@ -159,16 +187,16 @@
         const AC = this.calculateDistance(this.positions.A, this.positions.C);
         const BD = this.calculateDistance(this.positions.B, this.positions.D);
         
-        // Обчислити периметр
+        // Обчислення периметра
         const perimeter = AB + BC + CD + DA;
         
-        // Обчислити площі трикутників
+        // Обчислення площ трикутників
         const areaABC = this.calculateTriangleArea(AB, BC, AC);
         const areaABD = this.calculateTriangleArea(AB, BD, DA);
         const areaACD = this.calculateTriangleArea(AC, CD, DA);
         const areaBCD = this.calculateTriangleArea(BC, CD, BD);
         
-        // Вивести інформацію
+        // Форматування виводу
         this.infoPanel.innerHTML = `
           <strong>Чотирикутник ABCD</strong><br>
           Периметр: ${perimeter.toFixed(2)}<br><br>
