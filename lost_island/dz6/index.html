@@ -8,7 +8,7 @@
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
 
-  <!-- MindAR (обновлённая версия) -->
+  <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
@@ -27,14 +27,13 @@
     }
   </style>
 
-  <!-- ✅ Сначала регистрируем компоненты -->
   <script>
     let markerVisible = { A: false, B: false, C: false, D: false };
-    let coord = { 
-      A: new THREE.Vector3(), 
-      B: new THREE.Vector3(), 
-      C: new THREE.Vector3(), 
-      D: new THREE.Vector3() 
+    let coord = {
+      A: new THREE.Vector3(),
+      B: new THREE.Vector3(),
+      C: new THREE.Vector3(),
+      D: new THREE.Vector3()
     };
 
     AFRAME.registerComponent('registerevents', {
@@ -53,41 +52,69 @@
 
     AFRAME.registerComponent('run', {
       init: function () {
-        this.A = document.getElementById("A").object3D;
-        this.B = document.getElementById("B").object3D;
-        this.C = document.getElementById("C").object3D;
-        this.D = document.getElementById("D").object3D;
+        const waitForEntity = (id) => {
+          return new Promise(resolve => {
+            const el = document.getElementById(id);
+            if (el.hasLoaded) {
+              resolve(el);
+            } else {
+              el.addEventListener('loaded', () => resolve(el));
+            }
+          });
+        };
 
-        this.AB = document.getElementById("AB").object3D;
-        this.AC = document.getElementById("AC").object3D;
-        this.AD = document.getElementById("AD").object3D;
-        this.BC = document.getElementById("BC").object3D;
-        this.BD = document.getElementById("BD").object3D;
-        this.CD = document.getElementById("CD").object3D;
+        Promise.all([
+          waitForEntity("A"),
+          waitForEntity("B"),
+          waitForEntity("C"),
+          waitForEntity("D"),
+          waitForEntity("AB"),
+          waitForEntity("AC"),
+          waitForEntity("AD"),
+          waitForEntity("BC"),
+          waitForEntity("BD"),
+          waitForEntity("CD")
+        ]).then(([A, B, C, D, AB, AC, AD, BC, BD, CD]) => {
+          this.A = A.object3D;
+          this.B = B.object3D;
+          this.C = C.object3D;
+          this.D = D.object3D;
 
-        const geometry = new THREE.CylinderGeometry(0.01, 0.01, 1, 8);
-        geometry.translate(0, 0.5, 0);
-        geometry.rotateX(Math.PI / 2);
+          this.AB = AB.object3D;
+          this.AC = AC.object3D;
+          this.AD = AD.object3D;
+          this.BC = BC.object3D;
+          this.BD = BD.object3D;
+          this.CD = CD.object3D;
 
-        const materialSide = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
-        const materialDiag = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+          const geometry = new THREE.CylinderGeometry(0.01, 0.01, 1, 8);
+          geometry.translate(0, 0.5, 0);
+          geometry.rotateX(Math.PI / 2);
 
-        this.cAB = new THREE.Mesh(geometry.clone(), materialSide);
-        this.cAC = new THREE.Mesh(geometry.clone(), materialDiag);
-        this.cAD = new THREE.Mesh(geometry.clone(), materialSide);
-        this.cBC = new THREE.Mesh(geometry.clone(), materialSide);
-        this.cBD = new THREE.Mesh(geometry.clone(), materialDiag);
-        this.cCD = new THREE.Mesh(geometry.clone(), materialSide);
+          const materialSide = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
+          const materialDiag = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
 
-        this.AB.add(this.cAB); this.cAB.visible = false;
-        this.AC.add(this.cAC); this.cAC.visible = false;
-        this.AD.add(this.cAD); this.cAD.visible = false;
-        this.BC.add(this.cBC); this.cBC.visible = false;
-        this.BD.add(this.cBD); this.cBD.visible = false;
-        this.CD.add(this.cCD); this.cCD.visible = false;
+          this.cAB = new THREE.Mesh(geometry.clone(), materialSide);
+          this.cAC = new THREE.Mesh(geometry.clone(), materialDiag);
+          this.cAD = new THREE.Mesh(geometry.clone(), materialSide);
+          this.cBC = new THREE.Mesh(geometry.clone(), materialSide);
+          this.cBD = new THREE.Mesh(geometry.clone(), materialDiag);
+          this.cCD = new THREE.Mesh(geometry.clone(), materialSide);
+
+          this.AB.add(this.cAB); this.cAB.visible = false;
+          this.AC.add(this.cAC); this.cAC.visible = false;
+          this.AD.add(this.cAD); this.cAD.visible = false;
+          this.BC.add(this.cBC); this.cBC.visible = false;
+          this.BD.add(this.cBD); this.cBD.visible = false;
+          this.CD.add(this.cCD); this.cCD.visible = false;
+
+          this.ready = true;
+        });
       },
 
       tick: function () {
+        if (!this.ready) return;
+
         this.A.getWorldPosition(coord['A']);
         this.B.getWorldPosition(coord['B']);
         this.C.getWorldPosition(coord['C']);
@@ -173,11 +200,9 @@
            renderer="logarithmicDepthBuffer: true; antialias: true;"
            background="color: #000000">
 
-    <!-- Освещение -->
     <a-light type="ambient" color="#404040"></a-light>
     <a-light type="directional" position="0 1 0" color="#ffffff"></a-light>
 
-    <!-- Маркеры -->
     <a-entity mindar-image-target="targetIndex: 0" id="A" registerevents>
       <a-sphere color="red" radius="0.10"></a-sphere>
       <a-entity id="AB"></a-entity>
