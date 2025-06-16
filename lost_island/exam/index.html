@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <title>Код стає реальністю - AR</title>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image.prod.js"></script>
-    <script src="app.js" defer></script>
-    <link rel="stylesheet" href="style.css">
+    <script src="js/app.js" defer></script>
+    <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
     <div id="ar-container">
-        <mindar-image id="mindar" image-target-src="targets.mind" auto-start="true">
+        <mindar-image id="mindar" image-target-src="lib/targets.mind" auto-start="true">
             <mindar-camera></mindar-camera>
             <a-entity mindar-image-target="targetIndex: 0">
                 <a-box position="0 0.5 0" color="#4CC3D9"></a-box>
