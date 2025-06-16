@@ -1,3 +1,9 @@
-// Основна логіка взаємодії з MindAR та інтерпретації коду
+
 console.log("AR система запущена");
-// Тут буде інтеграція з інтерпретатором та ML
+
+document.addEventListener("DOMContentLoaded", () => {
+    const mindarContainer = document.querySelector("#mindar");
+    if (mindarContainer) {
+        console.log("MindAR контейнер знайдено");
+    }
+});
