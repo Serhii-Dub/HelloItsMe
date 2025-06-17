@@ -28,15 +28,15 @@
     </div>
 
     <!-- AR сцена, буде переміщено в JS у #ar-container -->
-    <a-scene
-      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true;"
-      color-space="sRGB"
-      embedded
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-      id="mindar-scene"
-      style="width: 100vw; height: 70vh; min-height: 350px"
-    >
+<a-scene
+  mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true;"
+  color-space="sRGB"
+  embedded
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  id="mindar-scene"
+  style="width: 100%; max-width: 600px; height: 70vh; min-height: 350px; margin: 0 auto; display: block;"
+>
       <a-entity mindar-image-target="targetIndex: 0">
         <!-- <a-box color="#EF2D5E" ...></a-box> -- видалено! -->
         <a-entity id="algo-content-0" position="0 0 0"></a-entity>
