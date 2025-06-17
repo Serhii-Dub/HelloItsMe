@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Dubrovіn AR — Візуалізація алгоритмів</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- MindAR + A-Frame -->
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+    <!-- TensorFlow.js для ML -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.23.0/dist/tf.min.js"></script>
+</head>
+<body>
+    <h1>Dubrovіn AR — Візуалізація алгоритмів</h1>
+    <div id="ar-container">
+        <div id="start-msg">
+            <b>Наведіть камеру на маркер-алгоритм</b>
+        </div>
+        <div id="stepper"></div>
+        <div id="ml-result"></div>
+    </div>
+
+    <!-- MindAR сцена -->
+    <a-scene
+      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true;"
+      color-space="sRGB"
+      embedded
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+      id="mindar-scene"
+      style="width: 100vw; height: 70vh; min-height: 350px"
+    >
+      <!-- Маркери AR -->
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-box color="#EF2D5E" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
+        <a-entity id="algo-content-0" position="0 0 0"></a-entity>
+      </a-entity>
+      <a-entity mindar-image-target="targetIndex: 1">
+        <a-box color="#4CC3D9" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
+        <a-entity id="algo-content-1" position="0 0 0"></a-entity>
+      </a-entity>
+      <a-entity mindar-image-target="targetIndex: 2">
+        <a-box color="#FFC65D" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
+        <a-entity id="algo-content-2" position="0 0 0"></a-entity>
+      </a-entity>
+      <a-entity mindar-image-target="targetIndex: 3">
+        <a-box color="#7BC8A4" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
+        <a-entity id="algo-content-3" position="0 0 0"></a-entity>
+      </a-entity>
+      <a-entity mindar-image-target="targetIndex: 4">
+        <a-box color="#A9A9F5" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
+        <a-entity id="algo-content-4" position="0 0 0"></a-entity>
+      </a-entity>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    </a-scene>
+
+    <script src="app.js"></script>
+    <script src="ml_optimizer.js"></script>
+</body>
+</html>
