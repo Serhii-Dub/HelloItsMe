@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8">
-  <title>Чотирикутник MindAR (A, B, C, D)</title>
+  <title>Чотирикутник MindAR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -20,12 +20,6 @@
       z-index: 2;
       font-size: 16px;
     }
-    .marker-label {
-      color: white;
-      font-weight: bold;
-      font-size: 0.18rem;
-      text-shadow: 0 0 3px #000;
-    }
   </style>
 </head>
 <body>
@@ -39,7 +33,6 @@
 </div>
 
 <a-scene mindar-image="imageTargetSrc: targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
-  <!-- Маркери -->
   <a-entity id="markerA" mindar-image-target="targetIndex: 0">
     <a-sphere color="red" radius="0.04" position="0 0 0"></a-sphere>
     <a-text value="A" align="center" position="0 0.11 0" color="white" side="double" width="1"></a-text>
@@ -59,11 +52,7 @@
 </a-scene>
 
 <script>
-// === КОНФІГУРАЦІЯ ===
 const markerIds = ['A','B','C','D'];
-const markerColors = { AB: "#ff7373", BC: "#73ff89", CD: "#73c2ff", DA: "#ffe673", AC: "#aaaaaa", BD: "#aaaaaa", AD: "#aaaaaa" };
-
-// Зв’язки для ліній (периметр та діагоналі)
 const connections = [
   ['A','B'], ['B','C'], ['C','D'], ['D','A'], // периметр
   ['A','C'], ['B','D'] // діагоналі
@@ -72,7 +61,6 @@ const connections = [
 let markers = {}, markerVisible = {}, lines = {};
 markerIds.forEach(id => { markerVisible[id]=false; });
 
-// === Лінії ===
 function createLine(color="#fff") {
   const line = document.createElement('a-cylinder');
   line.setAttribute('radius', '0.012');
@@ -83,7 +71,12 @@ function createLine(color="#fff") {
   return line;
 }
 
-// === Позиції й події ===
+function isMarkerReady(id) {
+  const el = markers[id];
+  // важливо: не тільки visible, а й object3D та position
+  return el && el.object3D && el.object3D.visible && el.object3D.position;
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   markerIds.forEach(id => {
     let el = document.getElementById('marker'+id);
@@ -92,25 +85,22 @@ window.addEventListener("DOMContentLoaded", () => {
     el.addEventListener('targetLost', ()=>{ markerVisible[id]=false; });
   });
 
-  // Створення ліній
   connections.forEach(pair=>{
     const id = pair.join('');
-    lines[id] = createLine(markerColors[id] || "#fff");
+    lines[id] = createLine();
   });
 
-  // Основний цикл
   setInterval(()=>{
-    // Якщо всі маркери на місці
-    let found = markerIds.every(id=>markers[id] && markers[id].object3D.visible);
+    // Працюємо тільки якщо всі маркери вже ініціалізовані та видимі
+    let found = markerIds.every(isMarkerReady);
     if(found){
-      // Координати маркерів
       let pos = {};
       markerIds.forEach(id=>{
-        let v = markers[id].object3D.position;
+        let el = markers[id];
+        let v = el.object3D.position;
         pos[id] = new THREE.Vector3(v.x, v.y, v.z);
       });
 
-      // Оновлення ліній
       connections.forEach(pair=>{
         let [id1, id2] = pair;
         let line = lines[pair.join('')];
@@ -118,28 +108,22 @@ window.addEventListener("DOMContentLoaded", () => {
 
         let diff = new THREE.Vector3().subVectors(p2, p1);
         let length = diff.length();
-
-        // Центр лінії між двома точками
         let center = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
-        // Обертання лінії
         let axis = new THREE.Vector3(0,1,0);
         let quaternion = new THREE.Quaternion().setFromUnitVectors(axis, diff.clone().normalize());
         line.object3D.position.copy(center);
         line.object3D.quaternion.copy(quaternion);
         line.setAttribute('height', length);
-
         line.setAttribute('visible', true);
       });
 
-      // Периметр
+      // Периметр і площі
       let AB = pos.A.distanceTo(pos.B);
       let BC = pos.B.distanceTo(pos.C);
       let CD = pos.C.distanceTo(pos.D);
       let DA = pos.D.distanceTo(pos.A);
       let perimeter = AB+BC+CD+DA;
       document.getElementById('perimeter').textContent = perimeter.toFixed(3);
-
-      // Площі трикутників
       function area(a,b,c) {
         let ab = pos[a].distanceTo(pos[b]);
         let bc = pos[b].distanceTo(pos[c]);
@@ -154,7 +138,6 @@ window.addEventListener("DOMContentLoaded", () => {
       document.getElementById('areaACD').textContent = area('A','C','D').toFixed(3);
 
     } else {
-      // Приховати лінії і скинути значення
       Object.values(lines).forEach(line=>line.setAttribute('visible', false));
       document.getElementById('perimeter').textContent = '0';
       document.getElementById('areaABC').textContent = '0';
@@ -162,7 +145,7 @@ window.addEventListener("DOMContentLoaded", () => {
       document.getElementById('areaBCD').textContent = '0';
       document.getElementById('areaACD').textContent = '0';
     }
-  }, 60); // оновлення раз на 60мс (~16 разів на секунду)
+  }, 60);
 });
 </script>
 </body>
