@@ -5,18 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Код стає реальністю | AR-візуалізація програм</title>
     <link rel="stylesheet" href="assets/style.css">
-    <!-- Використовуємо модульний підхід -->
-    <script type="module">
-        import { MindARThree } from 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-three.prod.js';
-        import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js';
-        
-        document.addEventListener('DOMContentLoaded', async () => {
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Наведіть камеру на QR-код з кодом програми</h1>
+        <div id="ar-container"></div>
+        <div id="code-visualization">
+            <pre id="code-display"></pre>
+            <div id="variables-panel"></div>
+            <div id="call-stack"></div>
+        </div>
+    </div>
+
+    <!-- Використовуємо конкретні CDN-посилання -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-three.prod.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Чекаємо повного завантаження бібліотек
+        window.addEventListener('load', async () => {
             try {
+                const { MindARThree } = window.MINDAR.IMAGE;
                 const mindar = new MindARThree({
                     container: document.getElementById("ar-container"),
                     imageTargetSrc: "lib/targets.mind",
                 });
+
                 const { renderer, scene, camera } = mindar;
+
+                // Додаємо світло для кращого відображення
+                const light = new THREE.DirectionalLight(0xffffff, 1);
+                light.position.set(0, 0, 1);
+                scene.add(light);
 
                 mindar.onTargetFound = (targetIdx) => {
                     console.log("Маркер знайдено:", targetIdx);
@@ -46,14 +66,14 @@
                             optimizeCode(code);
                             return;
                         }
-                        highlightLine(lineIdx);
+                        highlightLine(lineIdx, lines);
                         lineIdx++;
                     }, 1000);
                 }
 
-                function highlightLine(lineNumber) {
+                function highlightLine(lineNumber, lines) {
                     const codeDisplay = document.getElementById("code-display");
-                    codeDisplay.innerHTML = code.split('\n').map((line, idx) => {
+                    codeDisplay.innerHTML = lines.map((line, idx) => {
                         return `<div class="${idx === lineNumber ? 'highlight-line' : ''}">${line}</div>`;
                     }).join('\n');
                 }
@@ -77,19 +97,9 @@
 
             } catch (error) {
                 console.error("Помилка ініціалізації:", error);
+                alert("Сталася помилка при завантаженні AR. Перевірте консоль для деталей.");
             }
         });
     </script>
-</head>
-<body>
-    <div class="container">
-        <h1>🔍 Наведіть камеру на QR-код з кодом програми</h1>
-        <div id="ar-container"></div>
-        <div id="code-visualization">
-            <pre id="code-display"></pre>
-            <div id="variables-panel"></div>
-            <div id="call-stack"></div>
-        </div>
-    </div>
 </body>
 </html>
