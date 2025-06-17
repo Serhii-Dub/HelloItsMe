@@ -4,17 +4,16 @@
   <meta charset="UTF-8">
   <title>Земля-Місяць — Three.js + MindAR</title>
   <style>body{margin:0;overflow:hidden;}</style>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
 </head>
 <body>
   <div id="ar-container" style="width:100vw; height:100vh; position:fixed; top:0; left:0"></div>
   <script>
-    // Параметри
-    const EARTH_RADIUS = 0.096; // Як у AR, одиниці = метри
+    // Параметри для AR
+    const EARTH_RADIUS = 0.096;
     const MOON_RADIUS = 0.0261;
-    const MOON_DIST = 0.2685; // 50% більше ніж у попередній версії
+    const MOON_DIST = 0.2685;
     const TIME_SCALE = 1 / 17000;
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -24,18 +23,15 @@
       });
       const {renderer, scene, camera} = mindarThree;
 
-      // Світло
       const light = new THREE.PointLight(0xffffff, 1.5, 0);
       light.position.set(0.45, 0.15, 0);
       scene.add(light);
 
-      // Земля
       const earthTex = new THREE.TextureLoader().load('earth.jpg');
       const earthGeom = new THREE.SphereGeometry(EARTH_RADIUS, 32, 32);
       const earthMat = new THREE.MeshPhongMaterial({ map: earthTex });
       const earth = new THREE.Mesh(earthGeom, earthMat);
 
-      // Місяць у групі
       const moonTex = new THREE.TextureLoader().load('moon.jpg');
       const moonGroup = new THREE.Group();
       const moonGeom = new THREE.SphereGeometry(MOON_RADIUS, 24, 24);
@@ -44,14 +40,12 @@
       moon.position.set(MOON_DIST, 0, 0);
       moonGroup.add(moon);
 
-      // Все на таргет
       const anchor = mindarThree.addAnchor(0);
       anchor.group.add(earth);
       anchor.group.add(moonGroup);
 
-      // Анімація
       let start = Date.now();
-      mindarThree.start();
+      await mindarThree.start();
       renderer.setAnimationLoop(() => {
         let elapsed = (Date.now() - start) * TIME_SCALE / 1000;
         earth.rotation.y = elapsed * 2 * Math.PI / 86400;
