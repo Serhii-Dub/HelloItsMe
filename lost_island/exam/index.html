@@ -4,13 +4,18 @@
     <meta charset="utf-8">
     <title>AR Educational Project</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar/dist/mindar-image-three.prod.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/geometries/TextGeometry.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/FontLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <!-- Підключаємо MindAR як модуль -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mind-ar/dist/mindar-image-three.prod.js"></script>
+    <!-- Підключаємо TensorFlow для ML -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
+    <!-- Підключаємо файл для оптимізації (ML) -->
+    <script type="module" src="ml/optimize.js"></script>
+    <!-- Інші бібліотеки -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/geometries/TextGeometry.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/FontLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <style>
         body { margin: 0; font-family: Arial, sans-serif; }
         #container { position: relative; width: 100%; height: 100vh; overflow: hidden; }
@@ -40,22 +45,20 @@
     </div>
 
     <script type="module">
-        const THREE = window.MINDAR.IMAGE.THREE;
-        
-        // ML Model for Computer Science students
+        import { MindARThree } from 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-three.prod.js';
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js';
+
         let mlModel = null;
         
         async function loadMLModel() {
             try {
-                // Example: Load emotion detection model
-                // mlModel = await tf.loadLayersModel('path/to/model.json');
+                // Завантажуємо модель ML, якщо вона є
                 console.log('ML Model loaded');
             } catch (error) {
                 console.log('ML Model not available');
             }
         }
-        
-        // AR Application Class
+
         class AREducationalApp {
             constructor() {
                 this.mindarThree = null;
@@ -64,98 +67,77 @@
                 this.renderer = null;
                 this.isStarted = false;
             }
-            
+
             async init() {
-                // Initialize MindAR
-                this.mindarThree = new window.MINDAR.IMAGE.MindARThree({
+                this.mindarThree = new MindARThree({
                     container: document.getElementById('container'),
-                    imageTargetSrc: './assets/targets.mind', // Your compiled markers
+                    imageTargetSrc: 'targets.mind', // Шлях до маркерів
                 });
-                
+
                 const { renderer, scene, camera } = this.mindarThree;
                 this.renderer = renderer;
                 this.scene = scene;
                 this.camera = camera;
                 
-                // Add lighting
+                // Додаємо освітлення
                 const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
                 scene.add(light);
                 
-                // Setup educational content
+                // Налаштовуємо освітній контент
                 await this.setupEducationalContent();
-                
-                // Setup ML functionality for CS students
+
+                // Якщо є ML модель, то налаштовуємо її
                 if (mlModel) {
                     this.setupMLFeatures();
                 }
-                
-                // Start AR
+
+                // Запуск AR
                 await this.mindarThree.start();
                 document.getElementById('loading').style.display = 'none';
                 this.isStarted = true;
-                
-                // Animation loop
+
+                // Анімаційний цикл
                 this.renderer.setAnimationLoop(() => {
                     this.update();
                     this.renderer.render(this.scene, this.camera);
                 });
             }
-            
+
             async setupEducationalContent() {
-                // Create anchors for each marker
                 const anchor0 = this.mindarThree.addAnchor(0);
-                
-                // Example: Add 3D educational content
                 const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
                 const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
                 const cube = new THREE.Mesh(geometry, material);
-                
                 anchor0.group.add(cube);
-                
-                // Add interactivity
+
                 anchor0.onTargetFound = () => {
                     document.getElementById('info').innerHTML = 'Маркер знайдено! Досліджуйте об\'єкт.';
-                    this.onMarkerFound(0);
                 };
-                
+
                 anchor0.onTargetLost = () => {
                     document.getElementById('info').innerHTML = 'Знайдіть маркер для продовження.';
-                    this.onMarkerLost(0);
                 };
             }
-            
+
             setupMLFeatures() {
-                // Implement ML features for CS students
-                // Example: Emotion detection, gesture recognition, etc.
+                // Увімкнути ML функції, якщо є необхідність
                 setInterval(() => {
                     if (this.isStarted && mlModel) {
                         this.processMLData();
                     }
                 }, 1000);
             }
-            
+
             processMLData() {
-                // Process ML data here
-                // Example: Analyze user emotions, gestures, etc.
+                // Обробка ML даних, наприклад, аналіз емоцій або жестів
             }
-            
-            onMarkerFound(markerIndex) {
-                // Handle marker found events
-                console.log(`Marker ${markerIndex} found`);
-            }
-            
-            onMarkerLost(markerIndex) {
-                // Handle marker lost events
-                console.log(`Marker ${markerIndex} lost`);
-            }
-            
+
             update() {
-                // Update educational content
-                // Animation, calculations, ML processing
+                // Оновлення освітнього контенту
             }
         }
-        
-        // Initialize application
+
+        // Ініціалізація додатку
         document.addEventListener('DOMContentLoaded', async () => {
             await loadMLModel();
             const app = new AREducationalApp();
