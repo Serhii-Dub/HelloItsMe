@@ -15,7 +15,7 @@
     const EARTH_RADIUS = 6.4;
     const MOON_RADIUS = 1.74;
     const MOON_DIST = 17.9;
-    const TIME_SCALE = 1 / 17000; // пришвидшена анімація
+    const TIME_SCALE = 1 / 1000; // для пришвидшення
 
     let scene = new THREE.Scene();
     scene.background = new THREE.Color(0x111122);
@@ -38,6 +38,7 @@
     // Завантажувач текстур
     let loader = new THREE.TextureLoader();
 
+    // Створюємо матеріали тільки коли обидві текстури завантажаться!
     let earthTex, moonTex;
     let loaded = 0;
     let earth, moon, moonGroup;
@@ -60,13 +61,6 @@
       earth = new THREE.Mesh(earthGeom, earthMat);
       earth.position.set(0, EARTH_RADIUS, 0);
       scene.add(earth);
-
-      // Екватор для наочності обертання
-      let equatorGeom = new THREE.TorusGeometry(EARTH_RADIUS + 0.06, 0.06, 8, 100);
-      let equatorMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-      let equator = new THREE.Mesh(equatorGeom, equatorMat);
-      equator.rotation.x = Math.PI/2;
-      earth.add(equator);
 
       // Місяць у групі
       moonGroup = new THREE.Group();
