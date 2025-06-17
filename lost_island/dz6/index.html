@@ -1,111 +1,169 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <title>Чотирикутник на маркерах MindAR</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-        #infoBox {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            min-width: 250px;
-            background: rgba(0,0,0,0.85);
-            color: #fff;
-            padding: 14px;
-            border-radius: 12px;
-            font-family: monospace;
-            z-index: 2;
-            font-size: 16px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Чотирикутник MindAR (A, B, C, D)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    #infoBox {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      min-width: 250px;
+      background: rgba(0,0,0,0.82);
+      color: #fff;
+      padding: 14px;
+      border-radius: 12px;
+      font-family: monospace;
+      z-index: 2;
+      font-size: 16px;
+    }
+    .marker-label {
+      color: white;
+      font-weight: bold;
+      font-size: 0.18rem;
+      text-shadow: 0 0 3px #000;
+    }
+  </style>
 </head>
 <body>
 <div id="infoBox">
-    Периметр: <span id="perimeter">0</span><br>
-    Площі трикутників:<br>
-    <span style="margin-left:1em">ABC: <span id="areaABC">0</span></span><br>
-    <span style="margin-left:1em">ABD: <span id="areaABD">0</span></span><br>
-    <span style="margin-left:1em">BCD: <span id="areaBCD">0</span></span><br>
-    <span style="margin-left:1em">ACD: <span id="areaACD">0</span></span>
+  Периметр: <span id="perimeter">0</span><br>
+  Площі трикутників:<br>
+  <span style="margin-left:1em">ABC: <span id="areaABC">0</span></span><br>
+  <span style="margin-left:1em">ABD: <span id="areaABD">0</span></span><br>
+  <span style="margin-left:1em">BCD: <span id="areaBCD">0</span></span><br>
+  <span style="margin-left:1em">ACD: <span id="areaACD">0</span></span>
 </div>
 
-<a-scene mindar-image="imageTargetSrc: targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-    <!-- 4 маркери -->
-    <a-entity id="markerA" mindar-image-target="targetIndex: 0">
-        <a-sphere color="red" radius="0.04" position="0 0 0"></a-sphere>
-    </a-entity>
-    <a-entity id="markerB" mindar-image-target="targetIndex: 1">
-        <a-sphere color="green" radius="0.04" position="0 0 0"></a-sphere>
-    </a-entity>
-    <a-entity id="markerC" mindar-image-target="targetIndex: 2">
-        <a-sphere color="blue" radius="0.04" position="0 0 0"></a-sphere>
-    </a-entity>
-    <a-entity id="markerD" mindar-image-target="targetIndex: 3">
-        <a-sphere color="yellow" radius="0.04" position="0 0 0"></a-sphere>
-    </a-entity>
+<a-scene mindar-image="imageTargetSrc: targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded>
+  <!-- Маркери -->
+  <a-entity id="markerA" mindar-image-target="targetIndex: 0">
+    <a-sphere color="red" radius="0.04" position="0 0 0"></a-sphere>
+    <a-text value="A" align="center" position="0 0.11 0" color="white" side="double" width="1"></a-text>
+  </a-entity>
+  <a-entity id="markerB" mindar-image-target="targetIndex: 1">
+    <a-sphere color="green" radius="0.04" position="0 0 0"></a-sphere>
+    <a-text value="B" align="center" position="0 0.11 0" color="white" side="double" width="1"></a-text>
+  </a-entity>
+  <a-entity id="markerC" mindar-image-target="targetIndex: 2">
+    <a-sphere color="blue" radius="0.04" position="0 0 0"></a-sphere>
+    <a-text value="C" align="center" position="0 0.11 0" color="white" side="double" width="1"></a-text>
+  </a-entity>
+  <a-entity id="markerD" mindar-image-target="targetIndex: 3">
+    <a-sphere color="yellow" radius="0.04" position="0 0 0"></a-sphere>
+    <a-text value="D" align="center" position="0 0.11 0" color="white" side="double" width="1"></a-text>
+  </a-entity>
 </a-scene>
 
 <script>
-// Відстань між двома точками
-function dist(a, b) {
-    return Math.sqrt(
-        Math.pow(a.x - b.x, 2) +
-        Math.pow(a.y - b.y, 2) +
-        Math.pow(a.z - b.z, 2)
-    );
+// === КОНФІГУРАЦІЯ ===
+const markerIds = ['A','B','C','D'];
+const markerColors = { AB: "#ff7373", BC: "#73ff89", CD: "#73c2ff", DA: "#ffe673", AC: "#aaaaaa", BD: "#aaaaaa", AD: "#aaaaaa" };
+
+// Зв’язки для ліній (периметр та діагоналі)
+const connections = [
+  ['A','B'], ['B','C'], ['C','D'], ['D','A'], // периметр
+  ['A','C'], ['B','D'] // діагоналі
+];
+
+let markers = {}, markerVisible = {}, lines = {};
+markerIds.forEach(id => { markerVisible[id]=false; });
+
+// === Лінії ===
+function createLine(color="#fff") {
+  const line = document.createElement('a-cylinder');
+  line.setAttribute('radius', '0.012');
+  line.setAttribute('color', color);
+  line.setAttribute('height', '1');
+  line.setAttribute('visible', false);
+  document.querySelector('a-scene').appendChild(line);
+  return line;
 }
 
-// Геронова формула для площі трикутника
-function triangleArea(p1, p2, p3) {
-    let a = dist(p1, p2);
-    let b = dist(p2, p3);
-    let c = dist(p3, p1);
-    let s = (a + b + c) / 2;
-    let area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-    return (isNaN(area) || area < 1e-8) ? 0 : area;
-}
+// === Позиції й події ===
+window.addEventListener("DOMContentLoaded", () => {
+  markerIds.forEach(id => {
+    let el = document.getElementById('marker'+id);
+    markers[id] = el;
+    el.addEventListener('targetFound', ()=>{ markerVisible[id]=true; });
+    el.addEventListener('targetLost', ()=>{ markerVisible[id]=false; });
+  });
 
-setInterval(() => {
-    let ids = ['A', 'B', 'C', 'D'];
-    let points = {};
-    let found = 0;
-    ids.forEach(id => {
-        let el = document.getElementById('marker' + id);
-        if (el && el.object3D && el.object3D.visible) {
-            let pos = el.object3D.position;
-            points[id] = { x: pos.x, y: pos.y, z: pos.z };
-            found++;
-        }
-    });
+  // Створення ліній
+  connections.forEach(pair=>{
+    const id = pair.join('');
+    lines[id] = createLine(markerColors[id] || "#fff");
+  });
 
-    if (found === 4) {
-        let AB = dist(points.A, points.B);
-        let BC = dist(points.B, points.C);
-        let CD = dist(points.C, points.D);
-        let DA = dist(points.D, points.A);
-        let perimeter = AB + BC + CD + DA;
+  // Основний цикл
+  setInterval(()=>{
+    // Якщо всі маркери на місці
+    let found = markerIds.every(id=>markers[id] && markers[id].object3D.visible);
+    if(found){
+      // Координати маркерів
+      let pos = {};
+      markerIds.forEach(id=>{
+        let v = markers[id].object3D.position;
+        pos[id] = new THREE.Vector3(v.x, v.y, v.z);
+      });
 
-        let areaABC = triangleArea(points.A, points.B, points.C);
-        let areaABD = triangleArea(points.A, points.B, points.D);
-        let areaBCD = triangleArea(points.B, points.C, points.D);
-        let areaACD = triangleArea(points.A, points.C, points.D);
+      // Оновлення ліній
+      connections.forEach(pair=>{
+        let [id1, id2] = pair;
+        let line = lines[pair.join('')];
+        let p1 = pos[id1], p2 = pos[id2];
 
-        document.getElementById('perimeter').textContent = perimeter.toFixed(3);
-        document.getElementById('areaABC').textContent = areaABC.toFixed(3);
-        document.getElementById('areaABD').textContent = areaABD.toFixed(3);
-        document.getElementById('areaBCD').textContent = areaBCD.toFixed(3);
-        document.getElementById('areaACD').textContent = areaACD.toFixed(3);
+        let diff = new THREE.Vector3().subVectors(p2, p1);
+        let length = diff.length();
+
+        // Центр лінії між двома точками
+        let center = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+        // Обертання лінії
+        let axis = new THREE.Vector3(0,1,0);
+        let quaternion = new THREE.Quaternion().setFromUnitVectors(axis, diff.clone().normalize());
+        line.object3D.position.copy(center);
+        line.object3D.quaternion.copy(quaternion);
+        line.setAttribute('height', length);
+
+        line.setAttribute('visible', true);
+      });
+
+      // Периметр
+      let AB = pos.A.distanceTo(pos.B);
+      let BC = pos.B.distanceTo(pos.C);
+      let CD = pos.C.distanceTo(pos.D);
+      let DA = pos.D.distanceTo(pos.A);
+      let perimeter = AB+BC+CD+DA;
+      document.getElementById('perimeter').textContent = perimeter.toFixed(3);
+
+      // Площі трикутників
+      function area(a,b,c) {
+        let ab = pos[a].distanceTo(pos[b]);
+        let bc = pos[b].distanceTo(pos[c]);
+        let ca = pos[c].distanceTo(pos[a]);
+        let s = (ab+bc+ca)/2;
+        let S = Math.sqrt(s*(s-ab)*(s-bc)*(s-ca));
+        return isNaN(S)?0:S;
+      }
+      document.getElementById('areaABC').textContent = area('A','B','C').toFixed(3);
+      document.getElementById('areaABD').textContent = area('A','B','D').toFixed(3);
+      document.getElementById('areaBCD').textContent = area('B','C','D').toFixed(3);
+      document.getElementById('areaACD').textContent = area('A','C','D').toFixed(3);
+
     } else {
-        document.getElementById('perimeter').textContent = '0';
-        document.getElementById('areaABC').textContent = '0';
-        document.getElementById('areaABD').textContent = '0';
-        document.getElementById('areaBCD').textContent = '0';
-        document.getElementById('areaACD').textContent = '0';
+      // Приховати лінії і скинути значення
+      Object.values(lines).forEach(line=>line.setAttribute('visible', false));
+      document.getElementById('perimeter').textContent = '0';
+      document.getElementById('areaABC').textContent = '0';
+      document.getElementById('areaABD').textContent = '0';
+      document.getElementById('areaBCD').textContent = '0';
+      document.getElementById('areaACD').textContent = '0';
     }
-}, 200);
+  }, 60); // оновлення раз на 60мс (~16 разів на секунду)
+});
 </script>
 </body>
 </html>
