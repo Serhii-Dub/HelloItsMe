@@ -1,120 +1,16 @@
 <!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <title>Чотирикутник на маркерах MindAR</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>MindAR Test</title>
     <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-        #infoBox {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            min-width: 250px;
-            background: rgba(0,0,0,0.8);
-            color: #fff;
-            padding: 16px;
-            border-radius: 12px;
-            font-family: monospace;
-            z-index: 2;
-        }
-    </style>
-</head>
-<body>
-<div id="infoBox">
-    Периметр: <span id="perimeter">0</span><br>
-    Площі трикутників:<br>
-    ABC: <span id="areaABC">0</span><br>
-    ABD: <span id="areaABD">0</span><br>
-    BCD: <span id="areaBCD">0</span><br>
-    ACD: <span id="areaACD">0</span>
-</div>
-
-<a-scene mindar-image="imageTargetSrc: targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-    <a-assets>
-        <!-- Optionally add models or images for visual markers -->
-    </a-assets>
-    <!-- Four anchor entities for the markers -->
-    <a-entity id="markerA" mindar-image-target="targetIndex: 0">
-        <a-sphere color="red" radius="0.05"></a-sphere>
-    </a-entity>
-    <a-entity id="markerB" mindar-image-target="targetIndex: 1">
-        <a-sphere color="green" radius="0.05"></a-sphere>
-    </a-entity>
-    <a-entity id="markerC" mindar-image-target="targetIndex: 2">
-        <a-sphere color="blue" radius="0.05"></a-sphere>
-    </a-entity>
-    <a-entity id="markerD" mindar-image-target="targetIndex: 3">
-        <a-sphere color="yellow" radius="0.05"></a-sphere>
-    </a-entity>
-</a-scene>
-
-<script>
-// Допоміжна функція для евклідової відстані
-function dist(a, b) {
-    return Math.sqrt(
-        Math.pow(a.x - b.x, 2) +
-        Math.pow(a.y - b.y, 2) +
-        Math.pow(a.z - b.z, 2)
-    );
-}
-
-// Формула Герона для площі трикутника
-function triangleArea(p1, p2, p3) {
-    let a = dist(p1, p2);
-    let b = dist(p2, p3);
-    let c = dist(p3, p1);
-    let s = (a + b + c) / 2;
-    let area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
-    return isNaN(area) ? 0 : area;
-}
-
-// Періодично оновлюємо інформацію
-setInterval(() => {
-    let scene = document.querySelector('a-scene');
-    if (!scene || !scene.is('ar-mode')) return;
-
-    let ids = ['A', 'B', 'C', 'D'];
-    let points = {};
-    let found = 0;
-    ids.forEach(id => {
-        let el = document.getElementById('marker' + id);
-        if (el && el.object3D.visible) {
-            let pos = el.object3D.position;
-            points[id] = { x: pos.x, y: pos.y, z: pos.z };
-            found++;
-        }
-    });
-
-    if (found === 4) {
-        // Периметр
-        let AB = dist(points.A, points.B);
-        let BC = dist(points.B, points.C);
-        let CD = dist(points.C, points.D);
-        let DA = dist(points.D, points.A);
-        let perimeter = AB + BC + CD + DA;
-
-        // Площі трикутників
-        let areaABC = triangleArea(points.A, points.B, points.C);
-        let areaABD = triangleArea(points.A, points.B, points.D);
-        let areaBCD = triangleArea(points.B, points.C, points.D);
-        let areaACD = triangleArea(points.A, points.C, points.D);
-
-        document.getElementById('perimeter').textContent = perimeter.toFixed(3);
-        document.getElementById('areaABC').textContent = areaABC.toFixed(3);
-        document.getElementById('areaABD').textContent = areaABD.toFixed(3);
-        document.getElementById('areaBCD').textContent = areaBCD.toFixed(3);
-        document.getElementById('areaACD').textContent = areaACD.toFixed(3);
-    } else {
-        // Сховати або скинути якщо не всі маркери знайдено
-        document.getElementById('perimeter').textContent = '0';
-        document.getElementById('areaABC').textContent = '0';
-        document.getElementById('areaABD').textContent = '0';
-        document.getElementById('areaBCD').textContent = '0';
-        document.getElementById('areaACD').textContent = '0';
-    }
-}, 200);
-</script>
-</body>
+  </head>
+  <body>
+    <a-scene mindar-image="imageTargetSrc: targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-box color="red"></a-box>
+      </a-entity>
+    </a-scene>
+  </body>
 </html>
