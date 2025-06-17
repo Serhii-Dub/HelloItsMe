@@ -1,238 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>AR Geometry Calculator</title>
-
-  <!-- Бібліотеки - завантажуємо ПЕРШИМИ -->
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-aframe.prod.js"></script>
-
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      font-family: Arial, sans-serif;
-      background: #000;
-    }
-    
-    #info-panel {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 10px;
-      border-radius: 5px;
-      z-index: 10000;
-      font-size: 14px;
-      pointer-events: none;
-    }
-    
-    #loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      background: rgba(0,0,0,0.7);
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      z-index: 10000;
-    }
-    
-    .marker-label {
-      position: absolute;
-      font-size: 0.5em;
-      color: white;
-      background: rgba(0,0,0,0.5);
-      padding: 2px 5px;
-      border-radius: 3px;
-      transform: translateY(-1.5em);
-    }
-    
-    a-scene {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-  </style>
-</head>
-
-<body>
-  <div id="loading">Ініціалізація AR... Дозвольте доступ до камери</div>
-  <div id="info-panel">Наведіть камеру на всі 4 маркери (A, B, C, D)</div>
-
-  <!-- Сцена -->
-  <a-scene mindar-image="imageTargetSrc: targets.mind; autoStart: true; uiLoading: no; uiScanning: no; uiError: no;"
-           vr-mode-ui="enabled: false"
-           renderer="colorManagement: true; antialias: true; logarithmicDepthBuffer: true;"
-           embedded>
-
-    <!-- Джерела світла -->
-    <a-light type="ambient" color="#404040"></a-light>
-    <a-light type="directional" position="0 1 1" intensity="0.6"></a-light>
-
-    <!-- Маркери -->
-    <a-entity mindar-image-target="targetIndex: 0" id="A">
-      <a-sphere color="red" radius="0.05"></a-sphere>
-      <a-entity class="marker-label" text="value: A; color: white; align: center"></a-entity>
-    </a-entity>
-
-    <a-entity mindar-image-target="targetIndex: 1" id="B">
-      <a-sphere color="blue" radius="0.05"></a-sphere>
-      <a-entity class="marker-label" text="value: B; color: white; align: center"></a-entity>
-    </a-entity>
-
-    <a-entity mindar-image-target="targetIndex: 2" id="C">
-      <a-sphere color="green" radius="0.05"></a-sphere>
-      <a-entity class="marker-label" text="value: C; color: white; align: center"></a-entity>
-    </a-entity>
-
-    <a-entity mindar-image-target="targetIndex: 3" id="D">
-      <a-sphere color="yellow" radius="0.05"></a-sphere>
-      <a-entity class="marker-label" text="value: D; color: black; align: center"></a-entity>
-    </a-entity>
-
-    <!-- Камера -->
-    <a-entity camera="fov: 60; near: 0.01; far: 10000;"
-              position="0 0 0"
-              look-controls="enabled: false"></a-entity>
-  </a-scene>
-
-  <!-- Компоненти - після сцени, але з обгорткою -->
-  <script>
-    // Чекаємо повного завантаження сторінки
-    window.addEventListener('DOMContentLoaded', () => {
-      // Перевірка підтримки WebGL
-      if (!AFRAME.utils.device.checkWebGLSupport()) {
-        document.getElementById('loading').innerHTML = 
-          'Ваш пристрій не підтримує WebGL. Спробуйте інший браузер або пристрій.';
-        return;
-      }
-
-      // Перевірка підтримки getUserMedia
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        document.getElementById('loading').innerHTML = 
-          'Ваш браузер не підтримує доступ до камери. Спробуйте Chrome або Safari.';
-        return;
-      }
-
-      // Реєстрація компонента calculator
-      AFRAME.registerComponent('calculator', {
-        init: function() {
-          this.markers = {
-            A: null, B: null, C: null, D: null
-          };
-          this.positions = {
-            A: new THREE.Vector3(),
-            B: new THREE.Vector3(),
-            C: new THREE.Vector3(),
-            D: new THREE.Vector3()
-          };
-          this.visible = {
-            A: false, B: false, C: false, D: false
-          };
-          this.infoPanel = document.getElementById('info-panel');
-          
-          // Ініціалізація маркерів
-          ['A', 'B', 'C', 'D'].forEach((id) => {
-            const el = document.getElementById(id);
-            el.addEventListener('targetFound', () => {
-              this.visible[id] = true;
-              this.markers[id] = el.object3D;
-              this.updateInfo();
-            });
-            el.addEventListener('targetLost', () => {
-              this.visible[id] = false;
-              this.updateInfo();
-            });
-          });
-        },
-        
-        tick: function() {
-          if (!this.allMarkersVisible()) return;
-          
-          // Оновлення позицій
-          for (const id in this.markers) {
-            if (this.markers[id]) {
-              this.markers[id].getWorldPosition(this.positions[id]);
-            }
-          }
-          
-          this.updateInfo();
-        },
-        
-        allMarkersVisible: function() {
-          return this.visible.A && this.visible.B && this.visible.C && this.visible.D;
-        },
-        
-        calculateDistance: function(p1, p2) {
-          return p1.distanceTo(p2);
-        },
-        
-        calculateTriangleArea: function(a, b, c) {
-          const p = (a + b + c) / 2;
-          const area = p * (p - a) * (p - b) * (p - c);
-          return area > 0 ? Math.sqrt(area) : 0;
-        },
-        
-        updateInfo: function() {
-          const count = Object.values(this.visible).filter(v => v).length;
-          
-          if (count < 4) {
-            this.infoPanel.innerHTML = `Знайдено ${count}/4 маркерів<br>Потрібно ще ${4 - count}`;
-            return;
-          }
-          
-          // Обчислення довжин сторін
-          const AB = this.calculateDistance(this.positions.A, this.positions.B);
-          const BC = this.calculateDistance(this.positions.B, this.positions.C);
-          const CD = this.calculateDistance(this.positions.C, this.positions.D);
-          const DA = this.calculateDistance(this.positions.D, this.positions.A);
-          const AC = this.calculateDistance(this.positions.A, this.positions.C);
-          const BD = this.calculateDistance(this.positions.B, this.positions.D);
-          
-          // Обчислення периметра
-          const perimeter = AB + BC + CD + DA;
-          
-          // Обчислення площ трикутників
-          const areaABC = this.calculateTriangleArea(AB, BC, AC);
-          const areaABD = this.calculateTriangleArea(AB, BD, DA);
-          const areaACD = this.calculateTriangleArea(AC, CD, DA);
-          const areaBCD = this.calculateTriangleArea(BC, CD, BD);
-          
-          // Форматування виводу
-          this.infoPanel.innerHTML = `
-            <strong>Чотирикутник ABCD</strong><br>
-            Периметр: ${perimeter.toFixed(2)}<br><br>
-            <strong>Площі трикутників:</strong><br>
-            ABC: ${areaABC.toFixed(2)}<br>
-            ABD: ${areaABD.toFixed(2)}<br>
-            ACD: ${areaACD.toFixed(2)}<br>
-            BCD: ${areaBCD.toFixed(2)}<br><br>
-            <strong>Сума площ:</strong><br>
-            ABC + ACD: ${(areaABC + areaACD).toFixed(2)}<br>
-            ABD + BCD: ${(areaABD + areaBCD).toFixed(2)}
-          `;
+    <meta charset="UTF-8">
+    <title>Чотирикутник на маркерах MindAR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        #infoBox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            min-width: 250px;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: monospace;
+            z-index: 2;
         }
-      });
+    </style>
+</head>
+<body>
+<div id="infoBox">
+    Периметр: <span id="perimeter">0</span><br>
+    Площі трикутників:<br>
+    ABC: <span id="areaABC">0</span><br>
+    ABD: <span id="areaABD">0</span><br>
+    BCD: <span id="areaBCD">0</span><br>
+    ACD: <span id="areaACD">0</span>
+</div>
 
-      // Додаємо компонент до сцени після її завантаження
-      const scene = document.querySelector('a-scene');
-      scene.addEventListener('loaded', function() {
-        document.getElementById('loading').style.display = 'none';
-        
-        // Створюємо елемент з компонентом calculator
-        const calculator = document.createElement('a-entity');
-        calculator.setAttribute('calculator', '');
-        scene.appendChild(calculator);
-      });
+<a-scene mindar-image="imageTargetSrc: targets.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-assets>
+        <!-- Optionally add models or images for visual markers -->
+    </a-assets>
+    <!-- Four anchor entities for the markers -->
+    <a-entity id="markerA" mindar-image-target="targetIndex: 0">
+        <a-sphere color="red" radius="0.05"></a-sphere>
+    </a-entity>
+    <a-entity id="markerB" mindar-image-target="targetIndex: 1">
+        <a-sphere color="green" radius="0.05"></a-sphere>
+    </a-entity>
+    <a-entity id="markerC" mindar-image-target="targetIndex: 2">
+        <a-sphere color="blue" radius="0.05"></a-sphere>
+    </a-entity>
+    <a-entity id="markerD" mindar-image-target="targetIndex: 3">
+        <a-sphere color="yellow" radius="0.05"></a-sphere>
+    </a-entity>
+</a-scene>
+
+<script>
+// Допоміжна функція для евклідової відстані
+function dist(a, b) {
+    return Math.sqrt(
+        Math.pow(a.x - b.x, 2) +
+        Math.pow(a.y - b.y, 2) +
+        Math.pow(a.z - b.z, 2)
+    );
+}
+
+// Формула Герона для площі трикутника
+function triangleArea(p1, p2, p3) {
+    let a = dist(p1, p2);
+    let b = dist(p2, p3);
+    let c = dist(p3, p1);
+    let s = (a + b + c) / 2;
+    let area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+    return isNaN(area) ? 0 : area;
+}
+
+// Періодично оновлюємо інформацію
+setInterval(() => {
+    let scene = document.querySelector('a-scene');
+    if (!scene || !scene.is('ar-mode')) return;
+
+    let ids = ['A', 'B', 'C', 'D'];
+    let points = {};
+    let found = 0;
+    ids.forEach(id => {
+        let el = document.getElementById('marker' + id);
+        if (el && el.object3D.visible) {
+            let pos = el.object3D.position;
+            points[id] = { x: pos.x, y: pos.y, z: pos.z };
+            found++;
+        }
     });
-  </script>
+
+    if (found === 4) {
+        // Периметр
+        let AB = dist(points.A, points.B);
+        let BC = dist(points.B, points.C);
+        let CD = dist(points.C, points.D);
+        let DA = dist(points.D, points.A);
+        let perimeter = AB + BC + CD + DA;
+
+        // Площі трикутників
+        let areaABC = triangleArea(points.A, points.B, points.C);
+        let areaABD = triangleArea(points.A, points.B, points.D);
+        let areaBCD = triangleArea(points.B, points.C, points.D);
+        let areaACD = triangleArea(points.A, points.C, points.D);
+
+        document.getElementById('perimeter').textContent = perimeter.toFixed(3);
+        document.getElementById('areaABC').textContent = areaABC.toFixed(3);
+        document.getElementById('areaABD').textContent = areaABD.toFixed(3);
+        document.getElementById('areaBCD').textContent = areaBCD.toFixed(3);
+        document.getElementById('areaACD').textContent = areaACD.toFixed(3);
+    } else {
+        // Сховати або скинути якщо не всі маркери знайдено
+        document.getElementById('perimeter').textContent = '0';
+        document.getElementById('areaABC').textContent = '0';
+        document.getElementById('areaABD').textContent = '0';
+        document.getElementById('areaBCD').textContent = '0';
+        document.getElementById('areaACD').textContent = '0';
+    }
+}, 200);
+</script>
 </body>
 </html>
