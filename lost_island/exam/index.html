@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 
-    <!-- Бібліотеки через CDN для 100% роботи на GitHub Pages -->
+    <!-- Бібліотеки через CDN -->
     <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
@@ -34,22 +34,27 @@
       <a-entity mindar-image-target="targetIndex: 0">
         <a-box color="#EF2D5E" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-0" position="0 0 0"></a-entity>
+        <a-entity id="algo-result-0" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-entity mindar-image-target="targetIndex: 1">
         <a-box color="#4CC3D9" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-1" position="0 0 0"></a-entity>
+        <a-entity id="algo-result-1" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-entity mindar-image-target="targetIndex: 2">
         <a-box color="#FFC65D" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-2" position="0 0 0"></a-entity>
+        <a-entity id="algo-result-2" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-entity mindar-image-target="targetIndex: 3">
         <a-box color="#7BC8A4" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-3" position="0 0 0"></a-entity>
+        <a-entity id="algo-result-3" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-entity mindar-image-target="targetIndex: 4">
         <a-box color="#A9A9F5" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-4" position="0 0 0"></a-entity>
+        <a-entity id="algo-result-4" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
     </a-scene>

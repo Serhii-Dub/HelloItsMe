@@ -9,7 +9,7 @@ const algorithms = [
                 arr[j], arr[j+1] = arr[j+1], arr[j]
     return arr`,
     steps: [
-      "Генеруємо випадковий масив для сортування.",
+      "Генеруємо випадковий масив із 10 чисел для сортування.",
       "Визначаємо довжину масиву n.",
       "Запускаємо зовнішній цикл по i.",
       "Запускаємо внутрішній цикл по j.",
@@ -56,7 +56,7 @@ const algorithms = [
             return i
     return -1`,
     steps: [
-      "Генеруємо випадковий масив та випадковий елемент для пошуку.",
+      "Генеруємо випадковий масив із 15 чисел та випадковий елемент для пошуку.",
       "Перебираємо масив по черзі.",
       "Якщо знайдено елемент — повертаємо його індекс.",
       "Якщо не знайдено — повертаємо -1."
@@ -72,7 +72,7 @@ const algorithms = [
       "Генеруємо два випадкових числа для знаходження НСД.",
       "Поки b ≠ 0, виконуємо a, b = b, a % b.",
       "Повторюємо цикл до b = 0.",
-      "Повертаємо a — це і є НСД."
+      "Повертаємо a — це і є НСД (найбільший спільний дільник)."
     ]
   }
 ];
@@ -116,6 +116,21 @@ gcd(a, b)
   return trees[algoIdx] || "";
 }
 
+function setARResultText(idx, text) {
+  const container = document.getElementById(`algo-result-${idx}`);
+  container.innerHTML = '';
+  const txt = document.createElement('a-text');
+  txt.setAttribute('value', text);
+  txt.setAttribute('color', '#fff');
+  txt.setAttribute('align', 'center');
+  txt.setAttribute('width', '2');
+  txt.setAttribute('position', '0 0 0');
+  txt.setAttribute('side', 'double');
+  txt.setAttribute('shader', 'msdf');
+  txt.setAttribute('font', 'https://cdn.jsdelivr.net/npm/aframe-fonts/roboto-msdf.json');
+  container.appendChild(txt);
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   const stepper = document.getElementById("stepper");
   const mlResult = document.getElementById("ml-result");
@@ -146,8 +161,32 @@ window.addEventListener("DOMContentLoaded", () => {
 
     mlResult.innerHTML = `<b>ML-аналіз...</b>`;
     mlResult.classList.add("active");
+
     window.analyzeAlgorithm(algo.name, () => {
       mlResult.innerHTML = window.lastMlAnalysis || "Аналіз завершено!";
+
+      let resText = "";
+      if (algo.name === "bubble_sort") {
+        const match = /Після сортування: <b>\[(.*?)\]<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = match[1].split(',').map(x => x.trim()).join(' ');
+      }
+      else if (algo.name === "fibonacci") {
+        const match = /(\d+)-те число Фібоначчі = <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = match[2];
+      }
+      else if (algo.name === "factorial") {
+        const match = /Обчислюємо <b>(\d+)!<\/b>[\s\S]*?Результат: <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = `${match[1]}! = ${match[2]}`;
+      }
+      else if (algo.name === "linear_search") {
+        const match = /Шуканий елемент: <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = match[1];
+      }
+      else if (algo.name === "evklid_algoritm") {
+        const match = /НСД: <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = match[1];
+      }
+      setARResultText(idx, resText || "?");
     });
   }
 
@@ -163,6 +202,7 @@ window.addEventListener("DOMContentLoaded", () => {
     ent.addEventListener("targetLost", () => {
       stepper.classList.remove("active");
       mlResult.classList.remove("active");
+      setARResultText(i, ""); // Приховуємо 3D-текст
     });
   }
 });

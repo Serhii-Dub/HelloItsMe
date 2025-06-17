@@ -7,7 +7,6 @@ function timeIt(fn, ...args) {
   return { result, ms: (t1 - t0) };
 }
 
-// Bubble sort
 function bubbleSort(arr) {
   let n = arr.length;
   for (let i = 0; i < n; i++)
@@ -16,101 +15,100 @@ function bubbleSort(arr) {
   return arr;
 }
 
-// Fibonacci (recursion)
 function fibonacci(n) {
   if (n <= 1) return n;
   return fibonacci(n - 1) + fibonacci(n - 2);
 }
 
-// Factorial (recursion)
 function factorial(n) {
   if (n == 0) return 1;
   return n * factorial(n - 1);
 }
 
-// Linear search
 function linearSearch(arr, target) {
   for (let i = 0; i < arr.length; i++) if (arr[i] === target) return i;
   return -1;
 }
-// Binary search (for comparison)
-function binarySearch(arr, target) {
-  let left = 0, right = arr.length - 1;
-  while (left <= right) {
-    const mid = Math.floor((left + right) / 2);
-    if (arr[mid] === target) return mid;
-    if (arr[mid] < target) left = mid + 1;
-    else right = mid - 1;
-  }
-  return -1;
-}
 
-// GCD (Euclid algorithm)
 function gcd(a, b) {
+  let steps = [];
+  let origA = a, origB = b;
   let count = 0;
   while (b !== 0) {
+    steps.push(`Крок ${count+1}: a = ${a}, b = ${b} ⇒ a, b = b, a % b = ${b}, ${a % b}`);
     [a, b] = [b, a % b];
     count++;
   }
-  return { gcd: a, steps: count };
+  return { gcd: a, steps, origA, origB, totalSteps: count };
 }
 
 window.analyzeAlgorithm = function(name, cb) {
   let result = "";
   if (name === "bubble_sort") {
-    const len = Math.floor(Math.random() * 1000) + 100;
-    const arr = Array.from({ length: len }, () => Math.floor(Math.random() * 10000));
-    const { ms } = timeIt(bubbleSort, [...arr]);
-    result = `Bubble Sort<br>
-      Масив із <b>${len}</b> випадкових чисел.<br>
+    const arr = Array.from({ length: 10 }, () => Math.floor(Math.random() * 100));
+    const before = arr.join(', ');
+    const { result: sorted, ms } = timeIt(bubbleSort, [...arr]);
+    const after = sorted.join(', ');
+    result = `Bubble Sort (бульбашкове сортування)<br>
+      Масив із 10 випадкових чисел: <b>[${before}]</b><br>
+      Після сортування: <b>[${after}]</b><br>
       Час сортування: <b>${ms.toFixed(2)} мс</b>.<br>
-      Для великих масивів час зростає дуже швидко! Спробуй QuickSort або MergeSort.<br>
+      <b>Пояснення:</b> "Бульбашка" порівнює сусідні елементи та поступово "спливає" найбільше число в кінець.<br>
       <i>Дані та результат — реальні та рандомізовані.</i>`;
   }
   else if (name === "fibonacci") {
-    const n = Math.floor(Math.random() * 8) + 23; // 23..30
+    const n = Math.floor(Math.random() * 8) + 8; // 8–15
     const { ms, result: val } = timeIt(fibonacci, n);
     result = `Fibonacci<br>
       n = <b>${n}</b> (випадково).<br>
       ${n}-те число Фібоначчі = <b>${val}</b>.<br>
       Час обчислення: <b>${ms.toFixed(2)} мс</b>.<br>
-      <b>Рекомендація:</b> Для великих n краще мемоізація/ітер. підхід.<br>
-      <i>Обчислено реально на ваших даних.</i>`;
+      <b>Пояснення:</b> Числа Фібоначчі — це послідовність, у якій кожен елемент дорівнює сумі двох попередніх.<br>
+      <i>Результат для випадкового n.</i>`;
   }
   else if (name === "factorial") {
-    const n = Math.floor(Math.random() * 500) + 1000;
+    const n = Math.floor(Math.random() * 6) + 4; // 4–9
     const { ms, result: val } = timeIt(factorial, n);
     result = `Factorial<br>
-      n = <b>${n}</b> (випадково).<br>
-      Значення n! дуже велике (див. у коді).<br>
+      Обчислюємо <b>${n}!</b> (тобто ${n} × ${n-1} × ... × 1).<br>
+      Результат: <b>${val}</b>.<br>
       Час обчислення: <b>${ms.toFixed(2)} мс</b>.<br>
-      <b>Рекомендація:</b> Для великих n ітеративний підхід безпечніше.<br>
-      <i>Реальні дані, реальний час.</i>`;
+      <b>Пояснення:</b> Факторіал — добуток всіх натуральних чисел від 1 до n.<br>
+      <i>n вибрано випадково у межах 4–9.</i>`;
   }
   else if (name === "linear_search") {
-    const len = Math.floor(Math.random() * 20000) + 30000;
-    const arr = Array.from({ length: len }, (_, i) => i);
-    const target = Math.floor(Math.random() * len);
-    const { ms: linTime } = timeIt(linearSearch, arr, target);
-    const { ms: binTime } = timeIt(binarySearch, arr, target);
-    result = `Linear Search<br>
-      Масив із <b>${len}</b> елементів, target = <b>${target}</b> (випадково).<br>
-      Linear: <b>${linTime.toFixed(2)} мс</b>. Binary: <b>${binTime.toFixed(2)} мс</b>.<br>
-      Бінарний пошук швидше у ${(linTime / binTime).toFixed(1)} раз(и).<br>
-      <b>Рекомендація:</b> Для відсортованих масивів — binary search!<br>
-      <i>Тест проведено на випадкових даних.</i>`;
+    const arr = Array.from({ length: 15 }, () => Math.floor(Math.random() * 40));
+    const before = arr.join(', ');
+    const target = arr[Math.floor(Math.random() * arr.length)];
+    const { ms: linTime, result: idx } = timeIt(linearSearch, arr, target);
+    let visualArr = arr.map((x,i) =>
+      (x === target && i === idx)
+        ? `<b style="color:#7cf870;">${x}</b>`
+        : x
+    ).join(', ');
+    result = `Linear Search (лінійний пошук)<br>
+      Масив: [${visualArr}]<br>
+      Шуканий елемент: <b>${target}</b> (випадково обраний із масиву)<br>
+      <b>Результат:</b> Знайдено на позиції ${idx+1} (рахуючи з 1), за <b>${linTime.toFixed(2)} мс</b>.<br>
+      <b>Пояснення:</b> Лінійний пошук перебирає масив по черзі, поки не знайде потрібний елемент.<br>
+      <i>Всі числа та target — випадкові.</i>`;
   }
   else if (name === "evklid_algoritm") {
-    const a = Math.floor(Math.random() * 1e9) + 1e8;
-    const b = Math.floor(Math.random() * 1e9) + 1e8;
+    const a = Math.floor(Math.random() * 800) + 200;
+    const b = Math.floor(Math.random() * 800) + 100;
     const t0 = performance.now();
-    const { gcd: val, steps } = gcd(a, b);
+    const { gcd: res, steps, origA, origB, totalSteps } = gcd(a, b);
     const t1 = performance.now();
-    result = `GCD (Евклід)<br>
-      a = <b>${a}</b>, b = <b>${b}</b> (обидва випадкові).<br>
-      НСД: <b>${val}</b>, кроків: ${steps}, час: <b>${(t1-t0).toFixed(2)} мс</b>.<br>
-      <b>Рекомендація:</b> Евклід — один з найефективніших алгоритмів для НСД.<br>
-      <i>Усе зроблено на реальних даних.</i>`;
+    result = `GCD (алгоритм Евкліда)<br>
+      <b>Знаходження найбільшого спільного дільника (НСД)</b> для чисел <b>${origA}</b> та <b>${origB}</b>.<br>
+      <b>Пояснення:</b> НСД — це найбільше число, на яке діляться обидва заданих числа.<br>
+      <b>Алгоритм Евкліда:</b> поки b ≠ 0, a та b замінюються на b і a % b.<br>
+      Кроки:<br>
+      <pre style="font-size:0.95em;">${steps.join('\n')}</pre>
+      Всього кроків: <b>${totalSteps}</b>.<br>
+      НСД: <b>${res}</b>.<br>
+      Час: <b>${(t1-t0).toFixed(2)} мс</b>.<br>
+      <i>Всі числа — випадкові.</i>`;
   }
   else {
     result = "Алгоритм не розпізнано.";
