@@ -13,15 +13,21 @@
 </head>
 <body>
     <h1>Dubrovіn AR — Візуалізація алгоритмів</h1>
-    <div id="ar-container">
-        <div id="start-msg">
-            <b>Наведіть камеру на маркер-алгоритм</b>
-        </div>
+
+    <div id="ar-interface">
+      <div class="left-col">
         <div id="stepper"></div>
+      </div>
+      <div class="center-col">
+        <div id="ar-container"></div>
+        <!-- AR-сцена вставляється JS-ом саме сюди, щоб була по центру! -->
+      </div>
+      <div class="right-col">
         <div id="ml-result"></div>
+      </div>
     </div>
 
-    <!-- MindAR сцена -->
+    <!-- AR сцена, буде переміщено в JS у #ar-container -->
     <a-scene
       mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true;"
       color-space="sRGB"
@@ -32,32 +38,37 @@
       style="width: 100vw; height: 70vh; min-height: 350px"
     >
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-box color="#EF2D5E" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
+        <!-- <a-box color="#EF2D5E" ...></a-box> -- видалено! -->
         <a-entity id="algo-content-0" position="0 0 0"></a-entity>
         <a-entity id="algo-result-0" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-entity mindar-image-target="targetIndex: 1">
-        <a-box color="#4CC3D9" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-1" position="0 0 0"></a-entity>
         <a-entity id="algo-result-1" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-entity mindar-image-target="targetIndex: 2">
-        <a-box color="#FFC65D" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-2" position="0 0 0"></a-entity>
         <a-entity id="algo-result-2" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-entity mindar-image-target="targetIndex: 3">
-        <a-box color="#7BC8A4" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-3" position="0 0 0"></a-entity>
         <a-entity id="algo-result-3" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-entity mindar-image-target="targetIndex: 4">
-        <a-box color="#A9A9F5" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-4" position="0 0 0"></a-entity>
         <a-entity id="algo-result-4" position="0 0.65 0"></a-entity>
       </a-entity>
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
     </a-scene>
+
+    <script>
+    // Перемістити a-scene в #ar-container після DOMContentLoaded
+    window.addEventListener("DOMContentLoaded", () => {
+      const arContainer = document.getElementById("ar-container");
+      const scene = document.getElementById("mindar-scene");
+      if (arContainer && scene) arContainer.appendChild(scene);
+    });
+    </script>
 
     <script src="app.js"></script>
     <script src="ml_optimizer.js"></script>

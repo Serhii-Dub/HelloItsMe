@@ -7,33 +7,51 @@ body {
 
 h1 {
     text-align: center;
-    margin: 18px 0;
+    margin: 18px 0 0 0;
     font-size: 2rem;
     color: #85e5ff;
 }
 
-#ar-container {
-    margin: 0 auto;
-    padding: 8px 10vw;
-    max-width: 800px;
+#ar-interface {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 18px;
+    margin: 18px auto 0 auto;
+    max-width: 1300px;
 }
 
-#start-msg {
-    text-align: center;
-    margin-bottom: 14px;
-    font-size: 1.15rem;
-    color: #ffd966;
+.left-col, .right-col {
+    width: 350px;
+    min-width: 230px;
+    max-width: 420px;
+}
+
+.center-col {
+    flex: 1 1 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#ar-container {
+    width: 100%;
+    min-width: 380px;
+    min-height: 400px;
+    margin: 0;
+    padding: 0;
 }
 
 #stepper, #ml-result {
     background: #23262b;
-    margin: 10px 0;
+    margin: 12px 0;
     border-radius: 14px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-    padding: 16px;
+    padding: 14px;
     font-size: 1.1rem;
-    min-height: 60px;
+    min-height: 70px;
     display: none;
+    word-break: break-word;
 }
 
 #stepper.active, #ml-result.active {
@@ -64,3 +82,14 @@ h1 {
     transition: background .2s;
 }
 .step-btn:hover { background: #298fc2; }
+
+#call-tree pre {
+    color: #A9A9F5;
+    margin: 8px 0 0 0;
+}
+
+@media (max-width: 1000px) {
+    #ar-interface { flex-direction: column; gap: 0; }
+    .left-col, .right-col { width: 100%; max-width: none; min-width: 0; }
+    .center-col { min-width: 0; }
+}
