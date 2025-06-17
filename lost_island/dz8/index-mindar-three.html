@@ -5,7 +5,7 @@
   <title>Земля-Місяць — Three.js + MindAR</title>
   <style>body{margin:0;overflow:hidden;}</style>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-three.prod.js"></script>
 </head>
 <body>
   <div id="ar-container" style="width:100vw; height:100vh; position:fixed; top:0; left:0"></div>
@@ -44,12 +44,18 @@
       anchor.group.add(earth);
       anchor.group.add(moonGroup);
 
-      let start = Date.now();
+      let lastTime = performance.now();
+      let elapsedAll = 0;
+
       await mindarThree.start();
       renderer.setAnimationLoop(() => {
-        let elapsed = (Date.now() - start) * TIME_SCALE / 1000;
-        earth.rotation.y = elapsed * 2 * Math.PI / 86400;
-        let moonAngle = elapsed * 2 * Math.PI / (28*86400);
+        let now = performance.now();
+        let delta = (now - lastTime) * TIME_SCALE / 1000;
+        lastTime = now;
+        elapsedAll += delta;
+
+        earth.rotation.y = elapsedAll * 2 * Math.PI / 86400;
+        let moonAngle = elapsedAll * 2 * Math.PI / (28*86400);
         moonGroup.rotation.y = moonAngle;
         moon.rotation.y = moonAngle;
         renderer.render(scene, camera);

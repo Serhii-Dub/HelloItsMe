@@ -3,60 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <title>Земля-Місяць — Three.js VR</title>
-  <style>body{margin:0;overflow:hidden;background:#111}</style>
-  <!-- ТУТ старі Three.js та OrbitControls -->
+  <style>
+    body { margin:0; overflow:hidden; background:#111; }
+  </style>
+  <!-- Стабільна версія Three.js та OrbitControls -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/OrbitControls.min.js"></script>
 </head>
 <body>
   <script>
+    // Масштаб: 1 одиниця = 1000 км
     const EARTH_RADIUS = 6.4;
     const MOON_RADIUS = 1.74;
     const MOON_DIST = 17.9;
     const TIME_SCALE = 1 / 17000;
 
+    // Сцена
     let scene = new THREE.Scene();
     scene.background = new THREE.Color(0x111122);
 
-    let camera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 0.1, 1000);
+    // Камера
+    let camera = new THREE.PerspectiveCamera(
+      50, window.innerWidth / window.innerHeight, 0.1, 1000
+    );
     camera.position.set(0, 12, 40);
 
+    // Рендерер
     let renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
+    // Управління камерою
     let controls = new THREE.OrbitControls(camera, renderer.domElement);
 
+    // Світло (як Сонце)
     let light = new THREE.PointLight(0xffffff, 1.5, 0);
     light.position.set(30, 10, 0);
     scene.add(light);
 
+    // Текстури
     let earthTex = new THREE.TextureLoader().load('earth.jpg');
     let moonTex = new THREE.TextureLoader().load('moon.jpg');
 
+    // Земля
     let earthGeom = new THREE.SphereGeometry(EARTH_RADIUS, 32, 32);
     let earthMat = new THREE.MeshPhongMaterial({ map: earthTex });
     let earth = new THREE.Mesh(earthGeom, earthMat);
     earth.position.set(0, EARTH_RADIUS, 0);
     scene.add(earth);
 
+    // Місяць у групі (щоб легко обертати навколо Землі)
     let moonGroup = new THREE.Group();
     let moonGeom = new THREE.SphereGeometry(MOON_RADIUS, 24, 24);
     let moonMat = new THREE.MeshPhongMaterial({ map: moonTex });
     let moon = new THREE.Mesh(moonGeom, moonMat);
-    moon.position.set(MOON_DIST, 0, 0);
+    moon.position.set(MOON_DIST, 0, 0); // Віддаляємо Місяць від центру Землі
     moonGroup.add(moon);
     moonGroup.position.set(0, EARTH_RADIUS, 0);
     scene.add(moonGroup);
 
-    let start = Date.now();
+    // Плавна анімація з урахуванням пропущеного часу (щоб завжди оберталось правильно)
+    let lastTime = performance.now();
+    let elapsedAll = 0;
+
     function animate() {
       requestAnimationFrame(animate);
 
-      let elapsed = (Date.now() - start) * TIME_SCALE / 1000;
-      earth.rotation.y = elapsed * 2 * Math.PI / 86400;
-      let moonAngle = elapsed * 2 * Math.PI / (28*86400);
+      let now = performance.now();
+      let delta = (now - lastTime) * TIME_SCALE / 1000;
+      lastTime = now;
+      elapsedAll += delta;
+
+      // Обертання Землі навколо осі (1 доба)
+      earth.rotation.y = elapsedAll * 2 * Math.PI / 86400;
+      // Обертання Місяця навколо Землі (28 діб)
+      let moonAngle = elapsedAll * 2 * Math.PI / (28 * 86400);
       moonGroup.rotation.y = moonAngle;
+      // Місяць обертається навколо своєї осі (синхронно)
       moon.rotation.y = moonAngle;
 
       controls.update();
@@ -64,6 +87,7 @@
     }
     animate();
 
+    // Адаптація до розміру вікна
     window.addEventListener('resize', () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
       camera.aspect = window.innerWidth / window.innerHeight;
