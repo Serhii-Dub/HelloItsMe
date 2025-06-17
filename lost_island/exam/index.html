@@ -5,27 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Код стає реальністю | AR-візуалізація програм</title>
     <link rel="stylesheet" href="assets/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image.prod.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe@1.2.0/dist/aframe.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+    <!-- Використовуємо модульний підхід -->
+    <script type="module">
+        import { MindARThree } from 'https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-three.prod.js';
+        import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js';
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const mindar = new MindARThree({
+                    container: document.getElementById("ar-container"),
+                    imageTargetSrc: "lib/targets.mind",
+                });
+                const { renderer, scene, camera } = mindar;
+
+                mindar.onTargetFound = (targetIdx) => {
+                    console.log("Маркер знайдено:", targetIdx);
+                    const programCode = getProgramCode(targetIdx);
+                    visualizeCodeExecution(programCode);
+                };
+
+                await mindar.start();
+                renderer.setAnimationLoop(() => {
+                    renderer.render(scene, camera);
+                });
+
+                function getProgramCode(markerId) {
+                    const programs = [
+                        `// Програма 1: Сума чисел\nlet sum = 0;\nfor (let i = 1; i <= 10; i++) {\n    sum += i;\n}\nconsole.log(sum);`,
+                        `// Програма 2: Факторіал\nfunction factorial(n) {\n    if (n <= 1) return 1;\n    return n * factorial(n - 1);\n}\nfactorial(5);`
+                    ];
+                    return programs[markerId] || "// Код не знайдено";
+                }
+
+                function visualizeCodeExecution(code) {
+                    const lines = code.split('\n');
+                    let lineIdx = 0;
+                    const interval = setInterval(() => {
+                        if (lineIdx >= lines.length) {
+                            clearInterval(interval);
+                            optimizeCode(code);
+                            return;
+                        }
+                        highlightLine(lineIdx);
+                        lineIdx++;
+                    }, 1000);
+                }
+
+                function highlightLine(lineNumber) {
+                    const codeDisplay = document.getElementById("code-display");
+                    codeDisplay.innerHTML = code.split('\n').map((line, idx) => {
+                        return `<div class="${idx === lineNumber ? 'highlight-line' : ''}">${line}</div>`;
+                    }).join('\n');
+                }
+
+                function optimizeCode(code) {
+                    console.log("[ML] Аналіз коду...");
+                    const warnings = [];
+                    if (code.includes("for(let i=0")) {
+                        warnings.push("🔍 Замініть 'for' на 'forEach' або 'map' для масивів");
+                    }
+                    if (code.includes("==")) {
+                        warnings.push("🔍 Використовуйте '===' замість '==' для строгого порівняння");
+                    }
+
+                    const mlResults = document.createElement("div");
+                    mlResults.innerHTML = `<h3>🤖 Оптимізаційні поради:</h3><ul>${
+                        warnings.map(w => `<li>${w}</li>`).join("")
+                    }</ul>`;
+                    document.getElementById("variables-panel").appendChild(mlResults);
+                }
+
+            } catch (error) {
+                console.error("Помилка ініціалізації:", error);
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>🔍 Наведіть камеру на QR-код з кодом програми</h1>
-        <div id="ar-container">
-            <!-- Тут буде AR-сцена -->
-            <a-scene mindar-image embedded>
-                <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-                <a-entity mindar-image-target="targetIndex: 0"></a-entity>
-            </a-scene>
-        </div>
+        <div id="ar-container"></div>
         <div id="code-visualization">
             <pre id="code-display"></pre>
             <div id="variables-panel"></div>
             <div id="call-stack"></div>
         </div>
     </div>
-    <script src="js/app.js"></script>
 </body>
 </html>
