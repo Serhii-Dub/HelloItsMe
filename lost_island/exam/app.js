@@ -1,5 +1,3 @@
-// Коротко: при розпізнанні маркера — показує код, стан змінних, дає step-by-step виконання та дерево викликів.
-
 const algorithms = [
   {
     name: "bubble_sort",
@@ -11,15 +9,13 @@ const algorithms = [
                 arr[j], arr[j+1] = arr[j+1], arr[j]
     return arr`,
     steps: [
-      "Стартуємо: arr = [5, 2, 4, 3]",
-      "Встановити n = 4",
-      "Перше коло зовнішнього циклу (i=0): проходимо внутрішній цикл",
-      "Порівнюємо arr[0]=5 та arr[1]=2 → міняємо місцями",
-      "Порівнюємо arr[1]=5 та arr[2]=4 → міняємо місцями",
-      "Порівнюємо arr[2]=5 та arr[3]=3 → міняємо місцями",
-      "Кінець першого проходу: arr = [2, 4, 3, 5]",
-      "Наступні кола поки не відсортовано...",
-      "Кінець: arr = [2, 3, 4, 5]"
+      "Генеруємо випадковий масив для сортування.",
+      "Визначаємо довжину масиву n.",
+      "Запускаємо зовнішній цикл по i.",
+      "Запускаємо внутрішній цикл по j.",
+      "Порівнюємо сусідні елементи та міняємо місцями, якщо треба.",
+      "Коли не відбувається жодної заміни — масив відсортований.",
+      "Повертаємо відсортований масив."
     ]
   },
   {
@@ -30,13 +26,11 @@ const algorithms = [
     else:
         return fibonacci(n-1) + fibonacci(n-2)`,
     steps: [
-      "Введено n = 5",
-      "fibonacci(5) → fibonacci(4) + fibonacci(3)",
-      "fibonacci(4) → fibonacci(3) + fibonacci(2)",
-      "fibonacci(3) → fibonacci(2) + fibonacci(1)",
-      "fibonacci(2) → fibonacci(1) + fibonacci(0)",
-      "Рекурсія спускається до n=1, n=0, повертає 1 або 0",
-      "Повертаємо результат"
+      "Генеруємо випадкове n для обчислення n-го числа Фібоначчі.",
+      "Якщо n ≤ 1, повертаємо n.",
+      "Інакше викликаємо рекурсивно fibonacci(n-1) + fibonacci(n-2).",
+      "Збираємо результат з рекурсії.",
+      "Повертаємо n-те число Фібоначчі."
     ]
   },
   {
@@ -47,13 +41,11 @@ const algorithms = [
     else:
         return n * factorial(n-1)`,
     steps: [
-      "Введено n = 4",
-      "factorial(4) → 4 * factorial(3)",
-      "factorial(3) → 3 * factorial(2)",
-      "factorial(2) → 2 * factorial(1)",
-      "factorial(1) → 1 * factorial(0)",
-      "factorial(0) = 1",
-      "Повертаємо результат 24"
+      "Генеруємо випадкове n для обчислення n!.",
+      "Якщо n = 0, повертаємо 1.",
+      "Інакше рекурсивно множимо n на factorial(n-1).",
+      "Збираємо добуток з усіх рекурсивних викликів.",
+      "Повертаємо n!."
     ]
   },
   {
@@ -64,10 +56,10 @@ const algorithms = [
             return i
     return -1`,
     steps: [
-      "Масив arr = [3, 7, 9, 2], шукаємо target = 9",
-      "Перевірка arr[0]=3 — не співпадає",
-      "Перевірка arr[1]=7 — не співпадає",
-      "Перевірка arr[2]=9 — співпадає, повертаємо i=2"
+      "Генеруємо випадковий масив та випадковий елемент для пошуку.",
+      "Перебираємо масив по черзі.",
+      "Якщо знайдено елемент — повертаємо його індекс.",
+      "Якщо не знайдено — повертаємо -1."
     ]
   },
   {
@@ -77,56 +69,43 @@ const algorithms = [
         a, b = b, a % b
     return a`,
     steps: [
-      "Знаходимо НСД для a=48, b=18",
-      "b ≠ 0, переходимо в цикл",
-      "a, b = 18, 48 % 18 = 12",
-      "a, b = 12, 18 % 12 = 6",
-      "a, b = 6, 12 % 6 = 0",
-      "b = 0, вихід з циклу, повертаємо a = 6"
+      "Генеруємо два випадкових числа для знаходження НСД.",
+      "Поки b ≠ 0, виконуємо a, b = b, a % b.",
+      "Повторюємо цикл до b = 0.",
+      "Повертаємо a — це і є НСД."
     ]
   }
 ];
 
-// Коротке відображення дерева викликів
 function renderCallTree(algoIdx) {
   const trees = [
-    `
-    <b>Дерево викликів:</b><br>
+    `<b>Дерево викликів:</b><br>
     <pre>
 bubble_sort
   ↳ for i
     ↳ for j
       ↳ if arr[j] > arr[j+1]</pre>
     `,
-    `
-    <b>Дерево викликів:</b><br>
+    `<b>Дерево викликів:</b><br>
     <pre>
-fibonacci(5)
-  ↳ fibonacci(4)
-    ↳ fibonacci(3)
-      ↳ ...
-    </pre>
-    `,
-    `
-    <b>Дерево викликів:</b><br>
+fibonacci(n)
+  ↳ fibonacci(n-1)
+    ↳ fibonacci(n-2)
+      ↳ ...</pre>`,
+    `<b>Дерево викликів:</b><br>
     <pre>
-factorial(4)
-  ↳ factorial(3)
-    ↳ factorial(2)
-      ↳ factorial(1)
-        ↳ factorial(0)
-    </pre>
-    `,
-    `
-    <b>Дерево викликів:</b><br>
+factorial(n)
+  ↳ factorial(n-1)
+    ↳ factorial(n-2)
+      ↳ ...</pre>`,
+    `<b>Дерево викликів:</b><br>
     <pre>
 linear_search
   ↳ for i
     ↳ if arr[i] == target
     </pre>
     `,
-    `
-    <b>Дерево викликів:</b><br>
+    `<b>Дерево викликів:</b><br>
     <pre>
 gcd(a, b)
   ↳ while b != 0
@@ -137,7 +116,6 @@ gcd(a, b)
   return trees[algoIdx] || "";
 }
 
-// Підключаємо stepper і ml-аналітику до маркерів
 window.addEventListener("DOMContentLoaded", () => {
   const stepper = document.getElementById("stepper");
   const mlResult = document.getElementById("ml-result");
@@ -166,7 +144,6 @@ window.addEventListener("DOMContentLoaded", () => {
       if (currentStep < algo.steps.length - 1) { currentStep++; showStep(); }
     };
 
-    // ML-аналітика — підключаємо
     mlResult.innerHTML = `<b>ML-аналіз...</b>`;
     mlResult.classList.add("active");
     window.analyzeAlgorithm(algo.name, () => {
@@ -180,7 +157,6 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("steps-block").innerHTML = `<b>Крок ${currentStep+1}:</b> ${algo.steps[currentStep]}`;
   }
 
-  // AR розпізнавання: показує stepper при появі маркера
   for (let i = 0; i < 5; ++i) {
     const ent = document.querySelector(`#algo-content-${i}`).parentElement;
     ent.addEventListener("targetFound", () => showAlgorithm(i));

@@ -6,13 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
 
-    <!-- A-Frame (остання стабільна) -->
+    <!-- Бібліотеки через CDN для 100% роботи на GitHub Pages -->
     <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
-    <!-- MindAR -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <!-- TensorFlow.js -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
-
 </head>
 <body>
     <h1>Dubrovіn AR — Візуалізація алгоритмів</h1>
@@ -34,7 +31,6 @@
       id="mindar-scene"
       style="width: 100vw; height: 70vh; min-height: 350px"
     >
-      <!-- Маркери AR -->
       <a-entity mindar-image-target="targetIndex: 0">
         <a-box color="#EF2D5E" depth="0.1" height="0.5" width="0.5" position="0 0.3 0"></a-box>
         <a-entity id="algo-content-0" position="0 0 0"></a-entity>

@@ -58,57 +58,66 @@ function gcd(a, b) {
 window.analyzeAlgorithm = function(name, cb) {
   let result = "";
   if (name === "bubble_sort") {
-    const arr = Array.from({ length: 800 }, () => Math.floor(Math.random() * 5000));
+    const len = Math.floor(Math.random() * 1000) + 100;
+    const arr = Array.from({ length: len }, () => Math.floor(Math.random() * 10000));
     const { ms } = timeIt(bubbleSort, [...arr]);
-    result = `Bubble Sort (800 елементів): <b>${ms.toFixed(2)} мс</b>.<br>
-      Для великих масивів час зростає дуже швидко! Спробуй QuickSort або MergeSort — вони в 20-50 разів швидші.<br>
-      <i>Справжнє профілювання виконання у браузері.</i>`;
+    result = `Bubble Sort<br>
+      Масив із <b>${len}</b> випадкових чисел.<br>
+      Час сортування: <b>${ms.toFixed(2)} мс</b>.<br>
+      Для великих масивів час зростає дуже швидко! Спробуй QuickSort або MergeSort.<br>
+      <i>Дані та результат — реальні та рандомізовані.</i>`;
   }
   else if (name === "fibonacci") {
-    // Обираємо n=32, щоб не "зависнути"
-    const n = 32;
+    const n = Math.floor(Math.random() * 8) + 23; // 23..30
     const { ms, result: val } = timeIt(fibonacci, n);
-    result = `Рекурсивний Fibonacci (${n}): <b>${ms.toFixed(2)} мс</b>, значення: ${val}.<br>
-      Глибина рекурсії: ${n}. Реальний час зростає експоненційно!<br>
-      <b>Рекомендація:</b> Використовуй мемоізацію або ітеративний підхід для великих n.<br>
-      <i>Результат отримано реально у вашому браузері!</i>`;
+    result = `Fibonacci<br>
+      n = <b>${n}</b> (випадково).<br>
+      ${n}-те число Фібоначчі = <b>${val}</b>.<br>
+      Час обчислення: <b>${ms.toFixed(2)} мс</b>.<br>
+      <b>Рекомендація:</b> Для великих n краще мемоізація/ітер. підхід.<br>
+      <i>Обчислено реально на ваших даних.</i>`;
   }
   else if (name === "factorial") {
-    const n = 5000;
+    const n = Math.floor(Math.random() * 500) + 1000;
     const { ms, result: val } = timeIt(factorial, n);
-    result = `Рекурсивний Factorial (${n}): <b>${ms.toFixed(2)} мс</b>.<br>
-      Для дуже великих n рекурсія може "завалити" стек.<br>
-      <b>Рекомендація:</b> Ітеративний підхід безпечніше.<br>
-      <i>Час обчислений у реальному часі.</i>`;
+    result = `Factorial<br>
+      n = <b>${n}</b> (випадково).<br>
+      Значення n! дуже велике (див. у коді).<br>
+      Час обчислення: <b>${ms.toFixed(2)} мс</b>.<br>
+      <b>Рекомендація:</b> Для великих n ітеративний підхід безпечніше.<br>
+      <i>Реальні дані, реальний час.</i>`;
   }
   else if (name === "linear_search") {
-    const arr = Array.from({ length: 50000 }, (_, i) => i);
-    const target = 49999;
+    const len = Math.floor(Math.random() * 20000) + 30000;
+    const arr = Array.from({ length: len }, (_, i) => i);
+    const target = Math.floor(Math.random() * len);
     const { ms: linTime } = timeIt(linearSearch, arr, target);
-    // Для демонстрації — порівняємо із binary search
     const { ms: binTime } = timeIt(binarySearch, arr, target);
-    result = `Linear Search (50 000 елементів): <b>${linTime.toFixed(2)} мс</b>.<br>
-      Binary Search: <b>${binTime.toFixed(2)} мс</b>.<br>
-      Binary швидше в ${(linTime / binTime).toFixed(1)} раз(и).<br>
-      <b>Рекомендація:</b> Для великих, відсортованих масивів — лише бінарний пошук.<br>
-      <i>Тест пройдено прямо у вашому браузері.</i>`;
+    result = `Linear Search<br>
+      Масив із <b>${len}</b> елементів, target = <b>${target}</b> (випадково).<br>
+      Linear: <b>${linTime.toFixed(2)} мс</b>. Binary: <b>${binTime.toFixed(2)} мс</b>.<br>
+      Бінарний пошук швидше у ${(linTime / binTime).toFixed(1)} раз(и).<br>
+      <b>Рекомендація:</b> Для відсортованих масивів — binary search!<br>
+      <i>Тест проведено на випадкових даних.</i>`;
   }
   else if (name === "evklid_algoritm") {
-    const a = 1234567890, b = 987654321;
+    const a = Math.floor(Math.random() * 1e9) + 1e8;
+    const b = Math.floor(Math.random() * 1e9) + 1e8;
     const t0 = performance.now();
     const { gcd: val, steps } = gcd(a, b);
     const t1 = performance.now();
-    result = `GCD (Евклід) для ${a} та ${b}:<br>
-      Результат: <b>${val}</b>, кроків: ${steps}, <b>${(t1-t0).toFixed(2)} мс</b>.<br>
+    result = `GCD (Евклід)<br>
+      a = <b>${a}</b>, b = <b>${b}</b> (обидва випадкові).<br>
+      НСД: <b>${val}</b>, кроків: ${steps}, час: <b>${(t1-t0).toFixed(2)} мс</b>.<br>
       <b>Рекомендація:</b> Евклід — один з найефективніших алгоритмів для НСД.<br>
-      <i>Реально виконано у вашому браузері.</i>`;
+      <i>Усе зроблено на реальних даних.</i>`;
   }
   else {
-    result = "Алгоритм не розпізнано. Справжній аналіз не виконано.";
+    result = "Алгоритм не розпізнано.";
   }
 
   setTimeout(() => {
     window.lastMlAnalysis = result;
     cb && cb();
-  }, 350); // трохи паузи для вигляду "обчислення"
+  }, 350);
 };
