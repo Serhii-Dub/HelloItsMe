@@ -5,25 +5,30 @@
     <title>Земля-Місяць — AR.js</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.3.2/aframe/build/aframe-ar.min.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+    </style>
   </head>
-  <body style="margin: 0; overflow: hidden;">
+  <body>
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
       <a-marker type="pattern" url="earth-marker.patt">
+        <!-- Земля -->
         <a-sphere
-          radius="0.064"
+          radius="0.096"
           segments-height="32"
-          position="0 0.064 0"
+          position="0 0.096 0"
           src="earth.jpg"
           animation="property: rotation; to: 0 360 0; loop: true; dur: 5100"
         ></a-sphere>
+        <!-- Місяць -->
         <a-sphere
-          radius="0.0174"
+          radius="0.0261"
           segments-height="24"
-          position="0.179 0.064 0"
+          position="0.2685 0.096 0"
           src="moon.jpg"
           animation="property: rotation; to: 0 360 0; loop: true; dur: 142800"
         ></a-sphere>
-        <a-light type="point" position="0.3 0.1 0" intensity="2"></a-light>
+        <a-light type="point" position="0.45 0.15 0" intensity="2"></a-light>
       </a-marker>
       <a-entity camera></a-entity>
     </a-scene>

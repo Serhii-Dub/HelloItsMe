@@ -10,30 +10,35 @@
     </style>
   </head>
   <body>
-    <a-scene>
+    <a-scene background="color: #111">
       <a-assets>
         <img id="earth-texture" src="earth.jpg"/>
         <img id="moon-texture" src="moon.jpg"/>
       </a-assets>
+      <!-- Земля (з запасом колір якщо текстура не завантажиться) -->
       <a-sphere
         id="earth"
-        radius="6.4"
+        radius="9.6"
         segments-height="32"
-        position="0 6.4 0"
+        position="0 9.6 0"
         src="#earth-texture"
+        color="#2b7cff"
         animation="property: rotation; to: 0 360 0; loop: true; dur: 5100"
       ></a-sphere>
+      <!-- Місяць -->
       <a-sphere
         id="moon"
-        radius="1.74"
+        radius="2.61"
         segments-height="24"
-        position="17.9 6.4 0"
+        position="26.85 9.6 0"
         src="#moon-texture"
+        color="#cccccc"
         animation="property: rotation; to: 0 360 0; loop: true; dur: 142800"
       ></a-sphere>
-      <a-light type="point" position="30 10 0" intensity="2"></a-light>
+      <!-- Світло -->
+      <a-light type="point" position="40 15 0" intensity="2"></a-light>
       <a-sky color="#222"></a-sky>
-      <a-camera position="0 8 40"></a-camera>
+      <a-camera position="0 12 60"></a-camera>
     </a-scene>
   </body>
 </html>
