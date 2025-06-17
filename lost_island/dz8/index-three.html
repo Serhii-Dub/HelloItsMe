@@ -15,7 +15,7 @@
     const EARTH_RADIUS = 6.4;
     const MOON_RADIUS = 1.74;
     const MOON_DIST = 17.9;
-    const TIME_SCALE = 1 / 99000;
+    const TIME_SCALE = 1 / 99000; // для пришвидшення
 
     let scene = new THREE.Scene();
     scene.background = new THREE.Color(0x111122);
@@ -35,52 +35,72 @@
     light.position.set(30, 10, 0);
     scene.add(light);
 
-    let earthTex = new THREE.TextureLoader().load('earth.jpg');
-    let moonTex = new THREE.TextureLoader().load('moon.jpg');
+    // Завантажувач текстур
+    let loader = new THREE.TextureLoader();
 
-    // Земля
-    let earthGeom = new THREE.SphereGeometry(EARTH_RADIUS, 32, 32);
-    let earthMat = new THREE.MeshPhongMaterial({ map: earthTex });
-    let earth = new THREE.Mesh(earthGeom, earthMat);
-    earth.position.set(0, EARTH_RADIUS, 0);
-    scene.add(earth);
+    // Створюємо матеріали тільки коли обидві текстури завантажаться!
+    let earthTex, moonTex;
+    let loaded = 0;
+    let earth, moon, moonGroup;
 
-    // Місяць у групі
-    let moonGroup = new THREE.Group();
-    let moonGeom = new THREE.SphereGeometry(MOON_RADIUS, 24, 24);
-    let moonMat = new THREE.MeshPhongMaterial({ map: moonTex });
-    let moon = new THREE.Mesh(moonGeom, moonMat);
-    moon.position.set(MOON_DIST, 0, 0);
-    moonGroup.add(moon);
-    moonGroup.position.set(0, EARTH_RADIUS, 0);
-    scene.add(moonGroup);
+    loader.load('earth.jpg', function(texture){
+      earthTex = texture;
+      loaded++;
+      if (loaded === 2) initScene();
+    });
+    loader.load('moon.jpg', function(texture){
+      moonTex = texture;
+      loaded++;
+      if (loaded === 2) initScene();
+    });
 
-    // Анімація з правильними обертаннями
-    let lastTime = performance.now();
-    let elapsedAll = 0;
+    function initScene() {
+      // Земля
+      let earthGeom = new THREE.SphereGeometry(EARTH_RADIUS, 32, 32);
+      let earthMat = new THREE.MeshPhongMaterial({ map: earthTex });
+      earth = new THREE.Mesh(earthGeom, earthMat);
+      earth.position.set(0, EARTH_RADIUS, 0);
+      scene.add(earth);
 
-    function animate() {
-      requestAnimationFrame(animate);
+      // Місяць у групі
+      moonGroup = new THREE.Group();
+      let moonGeom = new THREE.SphereGeometry(MOON_RADIUS, 24, 24);
+      let moonMat = new THREE.MeshPhongMaterial({ map: moonTex });
+      moon = new THREE.Mesh(moonGeom, moonMat);
+      moon.position.set(MOON_DIST, 0, 0);
+      moonGroup.add(moon);
+      moonGroup.position.set(0, EARTH_RADIUS, 0);
+      scene.add(moonGroup);
 
-      let now = performance.now();
-      let delta = (now - lastTime) * TIME_SCALE / 1000;
-      lastTime = now;
-      elapsedAll += delta;
-
-      // Земля: обертання навколо своєї осі (1 доба)
-      earth.rotation.y = elapsedAll * 2 * Math.PI / 86400;
-
-      // Місяць: обертання навколо Землі (28 діб)
-      let moonAngle = elapsedAll * 2 * Math.PI / (28 * 86400);
-      moonGroup.rotation.y = moonAngle;
-
-      // Місяць: обертання навколо власної осі (1 оберт за 28 діб, синхронно)
-      moon.rotation.y = elapsedAll * 2 * Math.PI / (28 * 86400);
-
-      controls.update();
-      renderer.render(scene, camera);
+      startAnimation();
     }
-    animate();
+
+    function startAnimation() {
+      let lastTime = performance.now();
+      let elapsedAll = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+
+        let now = performance.now();
+        let delta = (now - lastTime) * TIME_SCALE / 1000;
+        lastTime = now;
+        elapsedAll += delta;
+
+        // Земля: обертання навколо своєї осі (1 доба)
+        earth.rotation.y = elapsedAll * 2 * Math.PI / 86400;
+
+        // Місяць: обертання навколо Землі (28 діб)
+        let moonAngle = elapsedAll * 2 * Math.PI / (28 * 86400);
+        moonGroup.rotation.y = moonAngle;
+
+        // Місяць: обертання навколо своєї осі (1 оберт за 28 діб)
+        moon.rotation.y = elapsedAll * 2 * Math.PI / (28 * 86400);
+
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
 
     window.addEventListener('resize', () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
