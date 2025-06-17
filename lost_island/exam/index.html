@@ -5,31 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Код стає реальністю | AR-візуалізація програм</title>
     <link rel="stylesheet" href="assets/style.css">
-    <!-- Правильне підключення бібліотек -->
+    <!-- Підключення через CDN з фолбеком -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image.prod.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-three.prod.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>🔍 Наведіть камеру на QR-код з кодом програми</h1>
-        <div id="ar-container"></div>
+        <div id="loading">Завантаження AR...</div>
+        <div id="ar-container" style="display: none;"></div>
         <div id="code-visualization">
-            <pre id="code-display"></pre>
+            <pre id="code-display">// Тут буде відображатись код</pre>
             <div id="variables-panel"></div>
-            <div id="call-stack"></div>
         </div>
     </div>
 
     <script>
         // Чекаємо повного завантаження сторінки
-        document.addEventListener('DOMContentLoaded', async () => {
+        window.addEventListener('load', async () => {
             try {
-                // Перевіряємо доступність API
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    throw new Error("AR не підтримується у вашому браузері");
+                // Перевірка підтримки WebGL
+                if (!window.MINDAR || !THREE) {
+                    throw new Error("Бібліотеки не завантажились");
                 }
-
+                
                 // Ініціалізація MindAR
                 const mindar = new window.MINDAR.IMAGE.MindARThree({
                     container: document.getElementById("ar-container"),
@@ -37,21 +37,24 @@
                 });
 
                 const { renderer, scene, camera } = mindar;
-
+                
                 // Налаштування сцени
                 const light = new THREE.DirectionalLight(0xffffff, 1);
                 light.position.set(0, 0, 1);
                 scene.add(light);
 
-                // Обробник знаходження маркера
+                // Обробник маркерів
                 mindar.onTargetFound = (targetIdx) => {
-                    console.log("Знайдено маркер #", targetIdx);
+                    console.log("Маркер знайдено:", targetIdx);
                     const programCode = getProgramCode(targetIdx);
                     visualizeCodeExecution(programCode);
                 };
 
                 // Запуск AR
                 await mindar.start();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('ar-container').style.display = 'block';
+                
                 renderer.setAnimationLoop(() => {
                     renderer.render(scene, camera);
                 });
@@ -103,17 +106,18 @@
                 }
 
             } catch (error) {
-                console.error("AR помилка:", error);
-                document.getElementById("ar-container").innerHTML = `
+                console.error("Помилка:", error);
+                document.getElementById("loading").innerHTML = `
                     <div class="error">
                         <h3>🚨 Помилка AR</h3>
                         <p>${error.message}</p>
-                        <p>Переконайтеся що:</p>
+                        <p>Для GitHub Pages обов'язково:</p>
                         <ul>
-                            <li>Ви використовуєте HTTPS або локальний сервер</li>
-                            <li>Ваш браузер підтримує WebGL (Chrome/Firefox)</li>
-                            <li>Файл targets.mind існує в папці lib/</li>
+                            <li>Використовуйте HTTPS</li>
+                            <li>Файл targets.mind має бути менше 10MB</li>
+                            <li>Браузер Chrome на Android/iOS</li>
                         </ul>
+                        <p><a href="https://serhii-dub.github.io/your-repo/" target="_blank">Повна інструкція</a></p>
                     </div>
                 `;
             }
