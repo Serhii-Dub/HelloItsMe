@@ -1,60 +1,34 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Земля-Місяць VR</title>
-  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-  <script src="https://aframe.io/releases/1.4.0/aframe-extras.min.js"></script>
-  <!-- Пуста фавіконка для уникнення помилки -->
-  <link rel="icon" href="data:,">
-</head>
-<body>
-  <a-scene>
-    <!-- Зірчасте небо з Pixabay -->
-    <a-sky src="https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_1280.jpg" rotation="0 0 15"></a-sky>
-    
-    <!-- Попереднє завантаження текстур -->
-    <a-assets>
-      <img id="earth-texture" src="earth.jpg">
-      <img id="moon-texture" src="moon.jpg">
-    </a-assets>
-    
-    <!-- Джерело світла (Сонце) -->
-    <a-light type="point" intensity="0.8" position="30 0 0" color="#FFFACD"></a-light>
-    
-    <!-- Земля -->
-    <a-entity id="earth" position="0 1.6 -5">
-      <a-sphere radius="1" 
-                segments-height="64" 
-                segments-width="64"
-                material="src: #earth-texture">
-        <!-- Анімація обертання Землі (1 оберт за 5 секунд) -->
-        <a-animation attribute="rotation" 
-                     dur="5000" 
-                     to="0 360 0" 
-                     easing="linear" 
-                     repeat="indefinite"></a-animation>
-      </a-sphere>
-      
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8">
+    <title>Земля-Місяць — VR</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>
+      <!-- Земля -->
+      <a-sphere
+        id="earth"
+        radius="6.4"
+        segments-height="32"
+        position="0 6.4 0"
+        src="earth.jpg"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 5100"
+      ></a-sphere>
       <!-- Місяць -->
-      <a-entity id="moon" position="2.7 0 0">
-        <a-sphere radius="0.272" 
-                  segments-height="32" 
-                  segments-width="32"
-                  material="src: #moon-texture">
-          <!-- Анімація обертання Місяця навколо Землі (140 секунд) -->
-          <a-animation attribute="rotation" 
-                       dur="140000" 
-                       to="0 360 0" 
-                       easing="linear" 
-                       repeat="indefinite"></a-animation>
-        </a-sphere>
-      </a-entity>
-    </a-entity>
-    
-    <!-- Камера -->
-    <a-camera position="0 1.6 0"></a-camera>
-  </a-scene>
-</body>
+      <a-sphere
+        id="moon"
+        radius="1.74"
+        segments-height="24"
+        position="17.9 6.4 0"
+        src="moon.jpg"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 142800"
+      ></a-sphere>
+      <!-- Джерело світла -->
+      <a-light type="point" position="30 10 0" intensity="2"></a-light>
+      <a-sky color="#222"></a-sky>
+      <a-camera position="0 8 40"></a-camera>
+    </a-scene>
+  </body>
 </html>
