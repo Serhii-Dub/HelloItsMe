@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Код стає реальністю | AR-візуалізація програм</title>
     <link rel="stylesheet" href="assets/style.css">
+    <!-- Правильне підключення бібліотек -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image.prod.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-three.prod.js"></script>
 </head>
 <body>
     <div class="container">
@@ -17,38 +21,42 @@
         </div>
     </div>
 
-    <!-- Використовуємо конкретні CDN-посилання -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-three.prod.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
     <script>
-        // Чекаємо повного завантаження бібліотек
-        window.addEventListener('load', async () => {
+        // Чекаємо повного завантаження сторінки
+        document.addEventListener('DOMContentLoaded', async () => {
             try {
-                const { MindARThree } = window.MINDAR.IMAGE;
-                const mindar = new MindARThree({
+                // Перевіряємо доступність API
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error("AR не підтримується у вашому браузері");
+                }
+
+                // Ініціалізація MindAR
+                const mindar = new window.MINDAR.IMAGE.MindARThree({
                     container: document.getElementById("ar-container"),
                     imageTargetSrc: "lib/targets.mind",
                 });
 
                 const { renderer, scene, camera } = mindar;
 
-                // Додаємо світло для кращого відображення
+                // Налаштування сцени
                 const light = new THREE.DirectionalLight(0xffffff, 1);
                 light.position.set(0, 0, 1);
                 scene.add(light);
 
+                // Обробник знаходження маркера
                 mindar.onTargetFound = (targetIdx) => {
-                    console.log("Маркер знайдено:", targetIdx);
+                    console.log("Знайдено маркер #", targetIdx);
                     const programCode = getProgramCode(targetIdx);
                     visualizeCodeExecution(programCode);
                 };
 
+                // Запуск AR
                 await mindar.start();
                 renderer.setAnimationLoop(() => {
                     renderer.render(scene, camera);
                 });
 
+                // Функції для роботи з кодом
                 function getProgramCode(markerId) {
                     const programs = [
                         `// Програма 1: Сума чисел\nlet sum = 0;\nfor (let i = 1; i <= 10; i++) {\n    sum += i;\n}\nconsole.log(sum);`,
@@ -60,6 +68,7 @@
                 function visualizeCodeExecution(code) {
                     const lines = code.split('\n');
                     let lineIdx = 0;
+                    
                     const interval = setInterval(() => {
                         if (lineIdx >= lines.length) {
                             clearInterval(interval);
@@ -79,7 +88,6 @@
                 }
 
                 function optimizeCode(code) {
-                    console.log("[ML] Аналіз коду...");
                     const warnings = [];
                     if (code.includes("for(let i=0")) {
                         warnings.push("🔍 Замініть 'for' на 'forEach' або 'map' для масивів");
@@ -88,16 +96,26 @@
                         warnings.push("🔍 Використовуйте '===' замість '==' для строгого порівняння");
                     }
 
-                    const mlResults = document.createElement("div");
-                    mlResults.innerHTML = `<h3>🤖 Оптимізаційні поради:</h3><ul>${
+                    const panel = document.getElementById("variables-panel");
+                    panel.innerHTML = `<h3>🤖 Оптимізаційні поради:</h3><ul>${
                         warnings.map(w => `<li>${w}</li>`).join("")
                     }</ul>`;
-                    document.getElementById("variables-panel").appendChild(mlResults);
                 }
 
             } catch (error) {
-                console.error("Помилка ініціалізації:", error);
-                alert("Сталася помилка при завантаженні AR. Перевірте консоль для деталей.");
+                console.error("AR помилка:", error);
+                document.getElementById("ar-container").innerHTML = `
+                    <div class="error">
+                        <h3>🚨 Помилка AR</h3>
+                        <p>${error.message}</p>
+                        <p>Переконайтеся що:</p>
+                        <ul>
+                            <li>Ви використовуєте HTTPS або локальний сервер</li>
+                            <li>Ваш браузер підтримує WebGL (Chrome/Firefox)</li>
+                            <li>Файл targets.mind існує в папці lib/</li>
+                        </ul>
+                    </div>
+                `;
             }
         });
     </script>
