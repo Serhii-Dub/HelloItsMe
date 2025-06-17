@@ -1,151 +1,161 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Код стає реальністю | AR-візуалізація програм</title>
-  <link rel="stylesheet" href="assets/style.css" />
-
-  <!-- Бібліотеки -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-three.umd.js"></script>
-
-  <!-- Профілювання (ML) -->
-  <script src="ml/profile_optimizer.js" defer></script>
+    <meta charset="utf-8">
+    <title>AR Educational Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar/dist/mindar-image-three.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; }
+        #container { position: relative; width: 100%; height: 100vh; overflow: hidden; }
+        #ui-panel { 
+            position: absolute; top: 10px; left: 10px; z-index: 100;
+            background: rgba(0,0,0,0.7); color: white; padding: 10px;
+            border-radius: 5px; max-width: 300px;
+        }
+        #loading { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 200; background: white; padding: 20px; border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🔍 Наведіть камеру на QR-код з кодом програми</h1>
-    <div id="loading">Завантаження AR...</div>
-    <div id="ar-container" style="display: none;"></div>
-    <div id="code-visualization">
-      <pre id="code-display">// Тут буде відображатись код</pre>
-      <div id="variables-panel">
-        <h3>📦 Стан змінних:</h3>
-        <ul id="variable-list"></ul>
-      </div>
+    <div id="container">
+        <div id="loading">
+            <h3>Завантаження AR додатку...</h3>
+            <p>Наведіть камеру на маркер</p>
+        </div>
+        
+        <div id="ui-panel">
+            <h4 id="title">AR Educational Experience</h4>
+            <div id="info">Знайдіть маркер для початку</div>
+            <div id="controls"></div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    window.addEventListener('load', async () => {
-      try {
-        if (!window.MINDAR || !window.THREE) {
-          throw new Error("Бібліотеки не завантажились");
-        }
-
-        const mindar = new window.MINDAR.IMAGE.MindARThree({
-          container: document.getElementById("ar-container"),
-          imageTargetSrc: "lib/targets.mind",
-        });
-
-        const { renderer, scene, camera } = mindar;
-
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(0, 0, 1);
-        scene.add(light);
-
-        mindar.onTargetFound = (targetIdx) => {
-          console.log("Маркер знайдено:", targetIdx);
-          const programCode = getProgramCode(targetIdx);
-          visualizeCodeExecution(programCode);
-        };
-
-        await mindar.start();
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('ar-container').style.display = 'block';
-
-        renderer.setAnimationLoop(() => {
-          renderer.render(scene, camera);
-        });
-
-        // === Код програми ===
-        function getProgramCode(markerId) {
-          const programs = [
-`// Програма 1: Сума чисел
-let sum = 0;
-for (let i = 1; i <= 5; i++) {
-    sum += i;
-}
-console.log(sum);`,
-
-`// Програма 2: Рекурсивний факторіал
-function factorial(n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);
-}
-let result = factorial(5);`
-          ];
-          return programs[markerId] || "// Код не знайдено";
-        }
-
-        function visualizeCodeExecution(code) {
-          const lines = code.split('\n');
-          let lineIdx = 0;
-          const context = {};
-          const variableList = document.getElementById("variable-list");
-          variableList.innerHTML = "";
-
-          const interval = setInterval(() => {
-            if (lineIdx >= lines.length) {
-              clearInterval(interval);
-              // ML оптимізація
-              if (typeof optimizeCode === "function") {
-                optimizeCode(code);
-              }
-              return;
-            }
-
-            highlightLine(lineIdx, lines);
-
-            const currentLine = lines[lineIdx].trim();
+    <script type="module">
+        const THREE = window.MINDAR.IMAGE.THREE;
+        
+        // ML Model for Computer Science students
+        let mlModel = null;
+        
+        async function loadMLModel() {
             try {
-              if (currentLine && !currentLine.startsWith("//")) {
-                // Простий "sandboxed eval" — eval у контексті об'єкта
-                const func = new Function("ctx", `
-                  with(ctx) {
-                    ${currentLine}
-                  }
-                `);
-                func(context);
-              }
-            } catch (err) {
-              console.warn("Помилка при виконанні рядка:", err.message);
+                // Example: Load emotion detection model
+                // mlModel = await tf.loadLayersModel('path/to/model.json');
+                console.log('ML Model loaded');
+            } catch (error) {
+                console.log('ML Model not available');
             }
-
-            // Оновлюємо список змінних
-            variableList.innerHTML = Object.keys(context).map(k => {
-              return `<li><strong>${k}</strong>: ${JSON.stringify(context[k])}</li>`;
-            }).join("");
-
-            lineIdx++;
-          }, 1000);
         }
-
-        function highlightLine(lineNumber, lines) {
-          const codeDisplay = document.getElementById("code-display");
-          codeDisplay.innerHTML = lines.map((line, idx) => {
-            return `<div class="${idx === lineNumber ? 'highlight-line' : ''}">${line}</div>`;
-          }).join('\n');
+        
+        // AR Application Class
+        class AREducationalApp {
+            constructor() {
+                this.mindarThree = null;
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.isStarted = false;
+            }
+            
+            async init() {
+                // Initialize MindAR
+                this.mindarThree = new window.MINDAR.IMAGE.MindARThree({
+                    container: document.getElementById('container'),
+                    imageTargetSrc: './assets/targets.mind', // Your compiled markers
+                });
+                
+                const { renderer, scene, camera } = this.mindarThree;
+                this.renderer = renderer;
+                this.scene = scene;
+                this.camera = camera;
+                
+                // Add lighting
+                const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+                scene.add(light);
+                
+                // Setup educational content
+                await this.setupEducationalContent();
+                
+                // Setup ML functionality for CS students
+                if (mlModel) {
+                    this.setupMLFeatures();
+                }
+                
+                // Start AR
+                await this.mindarThree.start();
+                document.getElementById('loading').style.display = 'none';
+                this.isStarted = true;
+                
+                // Animation loop
+                this.renderer.setAnimationLoop(() => {
+                    this.update();
+                    this.renderer.render(this.scene, this.camera);
+                });
+            }
+            
+            async setupEducationalContent() {
+                // Create anchors for each marker
+                const anchor0 = this.mindarThree.addAnchor(0);
+                
+                // Example: Add 3D educational content
+                const geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+                const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+                const cube = new THREE.Mesh(geometry, material);
+                
+                anchor0.group.add(cube);
+                
+                // Add interactivity
+                anchor0.onTargetFound = () => {
+                    document.getElementById('info').innerHTML = 'Маркер знайдено! Досліджуйте об\'єкт.';
+                    this.onMarkerFound(0);
+                };
+                
+                anchor0.onTargetLost = () => {
+                    document.getElementById('info').innerHTML = 'Знайдіть маркер для продовження.';
+                    this.onMarkerLost(0);
+                };
+            }
+            
+            setupMLFeatures() {
+                // Implement ML features for CS students
+                // Example: Emotion detection, gesture recognition, etc.
+                setInterval(() => {
+                    if (this.isStarted && mlModel) {
+                        this.processMLData();
+                    }
+                }, 1000);
+            }
+            
+            processMLData() {
+                // Process ML data here
+                // Example: Analyze user emotions, gestures, etc.
+            }
+            
+            onMarkerFound(markerIndex) {
+                // Handle marker found events
+                console.log(`Marker ${markerIndex} found`);
+            }
+            
+            onMarkerLost(markerIndex) {
+                // Handle marker lost events
+                console.log(`Marker ${markerIndex} lost`);
+            }
+            
+            update() {
+                // Update educational content
+                // Animation, calculations, ML processing
+            }
         }
-
-      } catch (error) {
-        console.error("Помилка:", error);
-        document.getElementById("loading").innerHTML = `
-          <div class="error">
-            <h3>🚨 Помилка AR</h3>
-            <p>${error.message}</p>
-            <p>Для GitHub Pages обов'язково:</p>
-            <ul>
-              <li>Використовуйте HTTPS</li>
-              <li>Файл targets.mind має бути менше 10MB</li>
-              <li>Браузер Chrome на Android/iOS</li>
-            </ul>
-            <p><a href="https://serhii-dub.github.io/your-repo/" target="_blank">Повна інструкція</a></p>
-          </div>
-        `;
-      }
-    });
-  </script>
+        
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadMLModel();
+            const app = new AREducationalApp();
+            await app.init();
+        });
+    </script>
 </body>
 </html>
