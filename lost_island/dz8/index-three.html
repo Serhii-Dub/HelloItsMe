@@ -11,11 +11,12 @@
 </head>
 <body>
   <script>
-    // Масштаб: 1 одиниця = 1000 км
     const EARTH_RADIUS = 6.4;
     const MOON_RADIUS = 1.74;
     const MOON_DIST = 17.9;
-    const TIME_SCALE = 1 / 1000; // для пришвидшення
+
+    // Коефіцієнт прискорення обертання (1000 — дуже швидко, 100 — помітно, 1 — як в реальності)
+    const SPEEDUP = 5000;
 
     let scene = new THREE.Scene();
     scene.background = new THREE.Color(0x111122);
@@ -35,10 +36,8 @@
     light.position.set(30, 10, 0);
     scene.add(light);
 
-    // Завантажувач текстур
     let loader = new THREE.TextureLoader();
 
-    // Створюємо матеріали тільки коли обидві текстури завантажаться!
     let earthTex, moonTex;
     let loaded = 0;
     let earth, moon, moonGroup;
@@ -62,6 +61,13 @@
       earth.position.set(0, EARTH_RADIUS, 0);
       scene.add(earth);
 
+      // Червоний екватор для візуалізації
+      let equatorGeom = new THREE.TorusGeometry(EARTH_RADIUS + 0.06, 0.06, 8, 100);
+      let equatorMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      let equator = new THREE.Mesh(equatorGeom, equatorMat);
+      equator.rotation.x = Math.PI/2;
+      earth.add(equator);
+
       // Місяць у групі
       moonGroup = new THREE.Group();
       let moonGeom = new THREE.SphereGeometry(MOON_RADIUS, 24, 24);
@@ -76,25 +82,22 @@
     }
 
     function startAnimation() {
-      let lastTime = performance.now();
-      let elapsedAll = 0;
+      let start = performance.now();
       function animate() {
         requestAnimationFrame(animate);
 
         let now = performance.now();
-        let delta = (now - lastTime) * TIME_SCALE / 1000;
-        lastTime = now;
-        elapsedAll += delta;
+        let elapsed = (now - start) / 1000 * SPEEDUP; // elapsed — "швидкий час" у секундах
 
-        // Земля: обертання навколо своєї осі (1 доба)
-        earth.rotation.y = elapsedAll * 2 * Math.PI / 86400;
+        // Земля: обертання навколо своєї осі (1 оберт = 86400 сек)
+        earth.rotation.y = elapsed * 2 * Math.PI / 86400;
 
-        // Місяць: обертання навколо Землі (28 діб)
-        let moonAngle = elapsedAll * 2 * Math.PI / (28 * 86400);
+        // Місяць: обертання навколо Землі (1 оберт = 28 * 86400 сек)
+        let moonAngle = elapsed * 2 * Math.PI / (28 * 86400);
         moonGroup.rotation.y = moonAngle;
 
-        // Місяць: обертання навколо своєї осі (1 оберт за 28 діб)
-        moon.rotation.y = elapsedAll * 2 * Math.PI / (28 * 86400);
+        // Місяць: обертання навколо своєї осі (синхронно)
+        moon.rotation.y = moonAngle;
 
         controls.update();
         renderer.render(scene, camera);
