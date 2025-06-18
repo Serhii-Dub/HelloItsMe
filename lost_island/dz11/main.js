@@ -7,6 +7,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const {renderer, scene, camera} = mindarThree;
 
+  // Ось цей рядок — зміна кольору фону!
+  scene.background = new THREE.Color(0xf4e7cd); // Світло-сірий (або 0xffffff для білого)
+
   // Створення Face Mesh з ТВОЄЮ текстурою
   const loader = new THREE.TextureLoader();
   loader.load("mask_uv.png", (maskTexture) => {
