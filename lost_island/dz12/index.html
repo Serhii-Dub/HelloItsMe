@@ -57,8 +57,8 @@
     // Права модель (model2.glb)
     loader.load('models/model2.glb', function(gltf) {
       const modelRight = gltf.scene;
-      modelRight.position.set(1.5, 0, 0); // праворуч
-      modelRight.scale.set(0.5, 0.5, 0.5); // зменшуємо
+      modelRight.position.set(1.5, 0, 0.3); // праворуч і трохи вперед
+      modelRight.scale.set(0.5, 0.5, 0.5);
       scene.add(modelRight);
     }, undefined, function(e) {
       console.error('Не вдалося завантажити model2.glb', e);
