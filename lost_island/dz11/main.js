@@ -7,22 +7,20 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   const {renderer, scene, camera} = mindarThree;
 
-  // Створення Face Mesh з ТВОЄЮ текстурою
-  const loader = new THREE.TextureLoader();
-  loader.load("mask_uv.png", (maskTexture) => {
-    const faceMesh = mindarThree.addFaceMesh();
-    faceMesh.material.map = maskTexture;
-    faceMesh.material.transparent = true;
-    faceMesh.material.opacity = 0.95; // можна змінити
-    faceMesh.material.needsUpdate = true;
-    scene.add(faceMesh);
+  // Освітлюємо фон сцени (тут світло-сірий, можна зробити білим: 0xffffff)
+  scene.background = new THREE.Color(0xf4e7cd);
 
-    mindarThree.start().then(() => {
-      renderer.setAnimationLoop(() => {
-        renderer.render(scene, camera);
-      });
-    });
-  }, undefined, (err) => {
-    alert("Не вдалося завантажити маску!");
+  // Створення Face Mesh з кольоровою маскою (наприклад, зеленою)
+  const faceMesh = mindarThree.addFaceMesh();
+  faceMesh.material = new THREE.MeshBasicMaterial({
+    color: 0x1aab20,   // будь-який колір, наприклад, зелений
+    transparent: true,
+    opacity: 0.85
+  });
+  scene.add(faceMesh);
+
+  await mindarThree.start();
+  renderer.setAnimationLoop(() => {
+    renderer.render(scene, camera);
   });
 });
