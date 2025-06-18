@@ -1,19 +1,19 @@
 window.addEventListener('DOMContentLoaded', async () => {
   const container = document.querySelector("#container");
 
-  // MindAR FACE (перевірена версія!)
   const mindarThree = new window.MINDAR.FACE.MindARThree({
     container: container,
   });
 
   const {renderer, scene, camera} = mindarThree;
 
-  // Завантаження текстури маски
+  // Створення Face Mesh з ТВОЄЮ текстурою
   const loader = new THREE.TextureLoader();
   loader.load("mask_uv.png", (maskTexture) => {
     const faceMesh = mindarThree.addFaceMesh();
     faceMesh.material.map = maskTexture;
     faceMesh.material.transparent = true;
+    faceMesh.material.opacity = 0.95; // можна змінити
     faceMesh.material.needsUpdate = true;
     scene.add(faceMesh);
 
