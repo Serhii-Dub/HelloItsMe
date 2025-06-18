@@ -47,7 +47,7 @@
     // Ліва модель (model.glb)
     loader.load('models/model.glb', function(gltf) {
       const modelLeft = gltf.scene;
-      modelLeft.position.set(-3.5, 0, 0); // ліворуч
+      modelLeft.position.set(-2.5, 0, 0); // ліворуч
       modelLeft.scale.set(0.5, 0.5, 0.5); // зменшуємо модель, якщо треба ще менше — став 0.2
       scene.add(modelLeft);
     }, undefined, function(e) {
@@ -57,7 +57,7 @@
     // Права модель (model2.glb)
     loader.load('models/model2.glb', function(gltf) {
       const modelRight = gltf.scene;
-      modelRight.position.set(3.5, 0, 0); // праворуч і трохи вперед
+      modelRight.position.set(3.5, 0, -5); // праворуч і трохи вперед
       modelRight.scale.set(0.5, 0.5, 0.5);
       scene.add(modelRight);
     }, undefined, function(e) {
