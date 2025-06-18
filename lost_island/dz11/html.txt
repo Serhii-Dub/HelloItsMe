@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Моя маска MindAR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- A-Frame та MindAR Face -->
+    <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-face-aframe.prod.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #ar-scene { width: 100vw; height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <a-scene
+      mindar-face
+      embedded
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+      id="ar-scene"
+    >
+      <a-assets>
+        <img id="mask" src="mask.svg" />
+      </a-assets>
+      <a-entity mindar-face-target="anchorIndex: 10">
+        <!-- 10 — це рот, можна спробувати 1 або 164 для всієї області обличчя -->
+        <a-plane
+          src="#mask"
+          width="1.5"
+          height="1.5"
+          position="0 0 0"
+          rotation="0 0 0"
+          transparent="true"
+        ></a-plane>
+      </a-entity>
+      <a-camera active="true" position="0 0 0"></a-camera>
+    </a-scene>
+  </body>
+</html>
