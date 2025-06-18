@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Handpose: Кути між пальцями</title>
+  <style>
+    body { background: #191c21; color: #fafafa; font-family: sans-serif; }
+    #canvas { position: absolute; left: 0; top: 0; z-index: 1; }
+    #angles {
+      position: absolute;
+      right: 2em; top: 2em;
+      background: #222d; padding: 1.2em 2em; border-radius: 1em;
+      font-size: 1.2em; z-index: 10;
+    }
+    #video { display: none; }
+    h2 { margin: 0 0 0.3em 0; }
+  </style>
+</head>
+<body>
+  <h2>Handpose: Кути між пальцями</h2>
+  <canvas id="canvas"></canvas>
+  <div id="angles">
+    <div>Index–Middle: <span id="angle1">—</span>°</div>
+    <div>Middle–Ring: <span id="angle2">—</span>°</div>
+    <div>Ring–Pinky: <span id="angle3">—</span>°</div>
+  </div>
+  <video id="video" playsinline></video>
+  <!-- TensorFlow.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+  <!-- MediaPipe Hands для tfjs -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest"></script>
+  <script>
+    const finger_pairs = [
+      [5, 8],   // Index: MCP–TIP
+      [9, 12],  // Middle: MCP–TIP
+      [13, 16], // Ring: MCP–TIP
+      [17, 20], // Pinky: MCP–TIP
+    ];
+    function getVector(landmarks, from, to) {
+      return [
+        landmarks[to].x - landmarks[from].x,
+        landmarks[to].y - landmarks[from].y,
+        (landmarks[to].z ?? 0) - (landmarks[from].z ?? 0)
+      ];
+    }
+    function angleBetween(v1, v2) {
+      const dot = v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+      const mag1 = Math.sqrt(v1[0]**2 + v1[1]**2 + v1[2]**2);
+      const mag2 = Math.sqrt(v2[0]**2 + v2[1]**2 + v2[2]**2);
+      if (mag1 === 0 || mag2 === 0) return 0;
+      let val = dot / (mag1 * mag2);
+      // to avoid numeric problems:
+      val = Math.max(-1, Math.min(1, val));
+      return Math.acos(val) * 180 / Math.PI;
+    }
+
+    // MediaPipe Hands (через @mediapipe/tasks-vision)
+    let video, canvas, ctx, width, height, handLandmarker;
+    async function setup() {
+      video = document.getElementById('video');
+      canvas = document.getElementById('canvas');
+      ctx = canvas.getContext('2d');
+      // Дозвіл
+      width = 640; height = 480;
+      canvas.width = width; canvas.height = height;
+
+      // Запуск відео
+      const stream = await navigator.mediaDevices.getUserMedia({video: {width, height}});
+      video.srcObject = stream;
+      await video.play();
+
+      // MediaPipe Hands
+      const vision = window.tasksVision;
+      handLandmarker = await vision.HandLandmarker.createFromOptions(
+        vision, {numHands: 1, runningMode: 'VIDEO'}
+      );
+      requestAnimationFrame(run);
+    }
+    async function run() {
+      ctx.drawImage(video, 0, 0, width, height);
+
+      // Аналіз руки
+      const results = await handLandmarker.detectForVideo(video, performance.now());
+      if (results.landmarks && results.landmarks.length > 0) {
+        const landmarks = results.landmarks[0];
+        // Малюємо точки та з'єднання
+        for (let i=0; i<landmarks.length; ++i) {
+          ctx.beginPath();
+          ctx.arc(landmarks[i].x*width, landmarks[i].y*height, 5, 0, 2*Math.PI);
+          ctx.fillStyle = "#ff2c2c";
+          ctx.fill();
+        }
+        // З'єднання (кістки)
+        const fingers = [[0,1,2,3,4],[0,5,6,7,8],[0,9,10,11,12],[0,13,14,15,16],[0,17,18,19,20]];
+        ctx.strokeStyle = "#42ff42"; ctx.lineWidth = 2;
+        fingers.forEach(f => {
+          ctx.beginPath();
+          for (let i = 0; i < f.length; ++i) {
+            const pt = landmarks[f[i]];
+            if (i === 0) ctx.moveTo(pt.x*width, pt.y*height);
+            else ctx.lineTo(pt.x*width, pt.y*height);
+          }
+          ctx.stroke();
+        });
+
+        // Кути між пальцями
+        const vectors = finger_pairs.map(([from, to]) => getVector(landmarks, from, to));
+        const angles = [
+          angleBetween(vectors[0], vectors[1]),
+          angleBetween(vectors[1], vectors[2]),
+          angleBetween(vectors[2], vectors[3]),
+        ];
+        document.getElementById('angle1').textContent = angles[0].toFixed(1);
+        document.getElementById('angle2').textContent = angles[1].toFixed(1);
+        document.getElementById('angle3').textContent = angles[2].toFixed(1);
+      } else {
+        document.getElementById('angle1').textContent = '—';
+        document.getElementById('angle2').textContent = '—';
+        document.getElementById('angle3').textContent = '—';
+      }
+      requestAnimationFrame(run);
+    }
+    // Завантаження скрипта vision
+    (async ()=>{
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js';
+      script.onload = setup;
+      document.body.appendChild(script);
+    })();
+  </script>
+</body>
+</html>
