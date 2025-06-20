@@ -2,11 +2,11 @@ const algorithms = [
   {
     name: "bubble_sort",
     code: `def bubble_sort(arr):
-    "n = len(arr)"
-    " for i in range(n):"
-        for j in range(0, n-i-1):
-            if arr[j] > arr[j+1]:
-                arr[j], arr[j+1] = arr[j+1], arr[j]
+    n = len(arr)
+    for i in range(n):
+            for j in range(0, n-i-1):
+                    if arr[j] > arr[j+1]:
+                            arr[j], arr[j+1] = arr[j+1], arr[j]
     return arr`,
     steps: [
       "Генеруємо випадковий масив із 10 чисел для сортування.",
@@ -22,9 +22,9 @@ const algorithms = [
     name: "fibonacci",
     code: `def fibonacci(n):
     if n <= 1:
-        return n
+            return n
     else:
-        return fibonacci(n-1) + fibonacci(n-2)`,
+            return fibonacci(n-1) + fibonacci(n-2)`,
     steps: [
       "Генеруємо випадкове n для обчислення n-го числа Фібоначчі.",
       "Якщо n ≤ 1, повертаємо n.",
@@ -37,9 +37,9 @@ const algorithms = [
     name: "factorial",
     code: `def factorial(n):
     if n == 0:
-        return 1
+            return 1
     else:
-        return n * factorial(n-1)`,
+            return n * factorial(n-1)`,
     steps: [
       "Генеруємо випадкове n для обчислення n!.",
       "Якщо n = 0, повертаємо 1.",
@@ -52,8 +52,8 @@ const algorithms = [
     name: "linear_search",
     code: `def linear_search(arr, target):
     for i in range(len(arr)):
-        if arr[i] == target:
-            return i
+            if arr[i] == target:
+                    return i
     return -1`,
     steps: [
       "Генеруємо випадковий масив із 15 чисел та випадковий елемент для пошуку.",
@@ -66,7 +66,7 @@ const algorithms = [
     name: "evklid_algoritm",
     code: `def gcd(a, b):
     while b != 0:
-        a, b = b, a % b
+            a, b = b, a % b
     return a`,
     steps: [
       "Генеруємо два випадкових числа для знаходження НСД.",
