@@ -42,7 +42,6 @@
 
 - [MindAR.js](https://github.com/MindAR-js/): AR на маркерах
 - [A-Frame](https://aframe.io/): 3D-сцена у браузері
-- [TensorFlow.js](https://www.tensorflow.org/js): профілювання (ML ready)
 - Власний JavaScript для візуалізації, AR та ML
 
 ---
