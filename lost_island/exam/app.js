@@ -147,8 +147,9 @@ window.addEventListener("DOMContentLoaded", () => {
     currentStep = 0;
     const algo = algorithms[idx];
 
+    // Ось тут код у <pre class="code-block">
     stepper.innerHTML = `
-      <div class="code-block">${algo.code}</div>
+      <pre class="code-block">${algo.code}</pre>
       <div id="steps-block"></div>
       <button class="step-btn" id="prev-step">Назад</button>
       <button class="step-btn" id="next-step">Далі</button>
@@ -169,34 +170,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     window.analyzeAlgorithm(algo.name, () => {
       mlResult.innerHTML = window.lastMlAnalysis || "Аналіз завершено!";
-
-      // ОНОВЛЕНО: тепер у AR завжди короткий "codeVR" (однорядковий код)
       setARResultText(idx, algo.codeVR);
-      // --- Якщо потрібно результат замість коду, закоментуй попередній рядок і розкоментуй наступний блок ---
-      /*
-      let resText = "";
-      if (algo.name === "bubble_sort") {
-        const match = /Після сортування: <b>\[(.*?)\]<\/b>/.exec(window.lastMlAnalysis);
-        if (match) resText = match[1].split(',').map(x => x.trim()).join(' ');
-      }
-      else if (algo.name === "fibonacci") {
-        const match = /(\d+)-те число Фібоначчі = <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
-        if (match) resText = match[2];
-      }
-      else if (algo.name === "factorial") {
-        const match = /Обчислюємо <b>(\d+)!<\/b>[\s\S]*?Результат: <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
-        if (match) resText = `${match[1]}! = ${match[2]}`;
-      }
-      else if (algo.name === "linear_search") {
-        const match = /Шуканий елемент: <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
-        if (match) resText = match[1];
-      }
-      else if (algo.name === "evklid_algoritm") {
-        const match = /НСД: <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
-        if (match) resText = match[1];
-      }
-      setARResultText(idx, resText || "?");
-      */
     });
   }
 

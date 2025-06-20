@@ -40,18 +40,16 @@ h1 {
     display: block;
 }
 
-/* ГОЛОВНЕ! */
-pre.code-block {
+.code-block {
     font-family: 'Fira Mono', 'Consolas', monospace;
-    white-space: pre;
     background: #181a1b;
-    color: #ffe16a;
     border-radius: 8px;
-    padding: 12px 18px;
-    font-size: 1.08rem;
+    padding: 10px;
+    color: #ffe16a;
     overflow-x: auto;
-    margin-bottom: 10px;
-    line-height: 1.38;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    white-space: pre-line;
 }
 
 .step-btn {
