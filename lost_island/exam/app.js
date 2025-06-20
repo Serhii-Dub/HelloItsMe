@@ -16,8 +16,7 @@ const algorithms = [
       "Порівнюємо сусідні елементи та міняємо місцями, якщо треба.",
       "Коли не відбувається жодної заміни — масив відсортований.",
       "Повертаємо відсортований масив."
-    ],
-    codeVR: "def bubble_sort(arr):   n = len(arr)   for i in range(n):   for j in range(0, n-i-1):   if arr[j] > arr[j+1]:   arr[j], arr[j+1] = arr[j+1], arr[j]   return arr"
+    ]
   },
   {
     name: "fibonacci",
@@ -32,8 +31,7 @@ const algorithms = [
       "Інакше викликаємо рекурсивно fibonacci(n-1) + fibonacci(n-2).",
       "Збираємо результат з рекурсії.",
       "Повертаємо n-те число Фібоначчі."
-    ],
-    codeVR: "def fibonacci(n):   if n <= 1: return n   else: return fibonacci(n-1) + fibonacci(n-2)"
+    ]
   },
   {
     name: "factorial",
@@ -48,8 +46,7 @@ const algorithms = [
       "Інакше рекурсивно множимо n на factorial(n-1).",
       "Збираємо добуток з усіх рекурсивних викликів.",
       "Повертаємо n!."
-    ],
-    codeVR: "def factorial(n):   if n == 0: return 1   else: return n * factorial(n-1)"
+    ]
   },
   {
     name: "linear_search",
@@ -63,8 +60,7 @@ const algorithms = [
       "Перебираємо масив по черзі.",
       "Якщо знайдено елемент — повертаємо його індекс.",
       "Якщо не знайдено — повертаємо -1."
-    ],
-    codeVR: "def linear_search(arr, target):   for i in range(len(arr)):   if arr[i] == target: return i   return -1"
+    ]
   },
   {
     name: "evklid_algoritm",
@@ -77,8 +73,7 @@ const algorithms = [
       "Поки b ≠ 0, виконуємо a, b = b, a % b.",
       "Повторюємо цикл до b = 0.",
       "Повертаємо a — це і є НСД (найбільший спільний дільник)."
-    ],
-    codeVR: "def gcd(a, b):   while b != 0: a, b = b, a % b   return a"
+    ]
   }
 ];
 
@@ -128,7 +123,7 @@ function setARResultText(idx, text) {
   txt.setAttribute('value', text);
   txt.setAttribute('color', '#fff');
   txt.setAttribute('align', 'center');
-  txt.setAttribute('width', '2.6');
+  txt.setAttribute('width', '2');
   txt.setAttribute('position', '0 0 0');
   txt.setAttribute('side', 'double');
   txt.setAttribute('shader', 'msdf');
@@ -167,19 +162,32 @@ window.addEventListener("DOMContentLoaded", () => {
     mlResult.innerHTML = `<b>ML-аналіз...</b>`;
     mlResult.classList.add("active");
 
-    // === AR: Виводимо саме короткий код для 3D-тексту ===
-    setARResultText(idx, algo.codeVR);
-
-    // Якщо хочеш також показувати результат — раскоментуй цей код:
-    /*
     window.analyzeAlgorithm(algo.name, () => {
       mlResult.innerHTML = window.lastMlAnalysis || "Аналіз завершено!";
-      let resText = algo.codeVR;
-      // Додати після коду результат, якщо потрібно
-      // ... (старий парсер результатів)
-      setARResultText(idx, resText);
+
+      let resText = "";
+      if (algo.name === "bubble_sort") {
+        const match = /Після сортування: <b>\[(.*?)\]<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = match[1].split(',').map(x => x.trim()).join(' ');
+      }
+      else if (algo.name === "fibonacci") {
+        const match = /(\d+)-те число Фібоначчі = <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = match[2];
+      }
+      else if (algo.name === "factorial") {
+        const match = /Обчислюємо <b>(\d+)!<\/b>[\s\S]*?Результат: <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = `${match[1]}! = ${match[2]}`;
+      }
+      else if (algo.name === "linear_search") {
+        const match = /Шуканий елемент: <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = match[1];
+      }
+      else if (algo.name === "evklid_algoritm") {
+        const match = /НСД: <b>(\d+)<\/b>/.exec(window.lastMlAnalysis);
+        if (match) resText = match[1];
+      }
+      setARResultText(idx, resText || "?");
     });
-    */
   }
 
   function showStep() {
