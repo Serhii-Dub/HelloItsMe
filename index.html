@@ -61,7 +61,7 @@
     }
 
     .main-image {
-	width: 50%;     
+	width: 30%;     
   	height: auto;
       border-radius: 20px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -75,6 +75,145 @@
       text-align: center;
       padding: 15px;
     }
+
+.project-card-collapsed {
+  width: 100%;
+  max-width: 570px;
+  margin: 36px auto 36px auto;
+  border-radius: 22px;
+  box-shadow: 0 4px 18px rgba(60,60,120,0.14);
+  background: #fff;
+  cursor: pointer;
+  overflow: hidden;
+  transition: box-shadow 0.3s;
+  outline: none;
+}
+.project-card-collapsed:focus,
+.project-card-collapsed:hover {
+  box-shadow: 0 8px 30px rgba(60,60,120,0.20);
+}
+
+.project-card-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card-header {
+  padding: 36px 32px 24px 32px;
+  background: linear-gradient(90deg,#3a3a8c 0%,#5757a8 100%);
+  color: #fff;
+  text-align: left;
+  transition: padding-bottom 0.4s;
+  position: relative;
+  z-index: 2;
+}
+
+.project-card-title {
+  font-size: 2rem;
+  font-weight: 600;
+  display: block;
+}
+
+.project-card-theme {
+  font-size: 1.08rem;
+  display: block;
+  margin-top: 9px;
+  opacity: 0.92;
+}
+
+.project-card-more {
+  display: block;
+  margin-top: 14px;
+  font-size: 1.1rem;
+  color: #ffe47a;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  opacity: 0.87;
+  transition: opacity 0.3s;
+}
+
+.project-card-collapsed .project-card-details {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 32px;
+  pointer-events: none;
+  transition: max-height 0.7s cubic-bezier(0.43,0.08,0.11,0.97), opacity 0.5s;
+  overflow: hidden;
+}
+
+.project-card-collapsed:focus .project-card-details,
+.project-card-collapsed:hover .project-card-details {
+  max-height: 999px;
+  opacity: 1;
+  padding: 24px 32px 32px 32px;
+  pointer-events: auto;
+}
+
+.project-card-collapsed:focus .project-card-header,
+.project-card-collapsed:hover .project-card-header {
+  padding-bottom: 10px;
+}
+
+.project-card-collapsed:focus .project-card-more,
+.project-card-collapsed:hover .project-card-more {
+  opacity: 0;
+}
+
+.project-card-details {
+  background: #fff;
+  color: #222;
+  font-size: 1.02rem;
+  border-radius: 0 0 22px 22px;
+  box-shadow: 0 2px 8px rgba(110,120,180,0.05);
+  margin-top: -8px;
+}
+
+.project-card-details-cols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 46px;
+  margin-bottom: 10px;
+}
+
+.project-card-details-cols > div {
+  flex: 1 1 200px;
+  min-width: 170px;
+  font-size: 1rem;
+}
+
+.project-card-details ul {
+  margin: 8px 0 12px 19px;
+  padding-left: 0;
+  font-size: 0.99rem;
+}
+
+.project-card-details hr {
+  border: none;
+  border-top: 1px solid #e3e3ee;
+  margin: 20px 0 18px 0;
+}
+
+.project-card-buttons {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.project-card-buttons a {
+  display: inline-block;
+  background: #3a3a8c;
+  color: #fff;
+  border-radius: 8px;
+  padding: 12px 26px;
+  text-decoration: none;
+  margin: 0 10px 0 0;
+  font-size: 1.1rem;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(60,60,120,0.07);
+}
+.project-card-buttons a:hover {
+  background: #5757a8;
+}
+
 
   </style>
 </head>
@@ -113,6 +252,63 @@
 	<a href="/HelloItsMe/lost_island/exam/qr-codes/fibonacci_qr.png">QR4 - fibonacci_qr</a>
 	<a href="/HelloItsMe/lost_island/exam/qr-codes/linear_search_qr.png">QR5 -linear_search_qr</a>
   </nav>
+
+<div class="project-card-collapsed" tabindex="0">
+  <div class="project-card-inner">
+    <div class="project-card-header">
+      <span class="project-card-title">B.1.14 – Код стає реальністю</span>
+      <span class="project-card-theme">Тема: Візуалізація виконання програм в AR через QR-коди</span>
+      <span class="project-card-more">🡳 Дізнатись більше</span>
+    </div>
+    <div class="project-card-details">
+      <div class="project-card-details-cols">
+        <div>
+          <b>Мета:</b>
+          <ul>
+            <li>Візуалізувати виконання алгоритмів та коду</li>
+            <li>Демонструвати покрокову зміну змінних і стан пам’яті</li>
+            <li>Показувати дерево викликів функцій</li>
+          </ul>
+          <b>Функціональність:</b>
+          <ul>
+            <li>Використання QR-кодів для запуску алгоритмів у AR</li>
+            <li>Відображення змінних, стеку, дерева викликів у реальному часі</li>
+            <li>Покрокова демонстрація виконання</li>
+          </ul>
+        </div>
+        <div>
+          <b>Технології:</b>
+          <ul>
+            <li>MindAR</li>
+            <li>Three.js</li>
+            <li>Інтерпретатор коду</li>
+          </ul>
+          <b>Платформа:</b> Мобільний браузер із камерою<br>
+          <b>Тип:</b> AR (маркерний, QR-коди)
+        </div>
+      </div>
+      <hr>
+      <div class="project-card-details-cols">
+        <div>
+          <b>Цільова аудиторія:</b> студенти ІТ, учні старших класів<br>
+          <b>Дисципліна:</b> Інноваційні цифрові технології в освіті
+        </div>
+        <div>
+          <b>Автор:</b> Дубровін Сергій Олександрович<br>
+          <b>Група:</b> IM-24<br>
+          <b>Спеціальність:</b> 014 Середня освіта<br>
+          <b>Викладач:</b> Семеряков Сергій Олексійович<br>
+          <b>Рік:</b> 2025
+        </div>
+      </div>
+      <div class="project-card-buttons">
+        <a href="/HelloItsMe/lost_island/exam/index.html" target="_blank">Демонстрація</a>
+        <a href="/HelloItsMe/lost_island/exam/README.md" target="_blank">README</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   <div class="container">
     <p>Вибачте, але Ви не повинні бачити цю сторінку. Я змушений викликати поліцію, щоб розібратися в ситуації.</p>
