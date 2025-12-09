@@ -1,0 +1,313 @@
+/* Основні стилі */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    background: #161819;
+    color: #f2f2f2;
+    line-height: 1.6;
+}
+
+h1 {
+    text-align: center;
+    margin: 18px 0;
+    font-size: 2rem;
+    color: #85e5ff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Контейнер AR */
+#ar-container {
+    margin: 0 auto;
+    padding: 8px 5vw;
+    max-width: 1000px;
+}
+
+#start-msg {
+    text-align: center;
+    margin-bottom: 14px;
+    font-size: 1.15rem;
+    color: #ffd966;
+    padding: 10px;
+    background: rgba(255, 217, 102, 0.1);
+    border-radius: 8px;
+}
+
+#start-msg small {
+    font-size: 0.9rem;
+    color: #aaa;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Секції */
+#stepper, #ml-result, #sorting-visualization {
+    background: #23262b;
+    margin: 15px 0;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    font-size: 1.1rem;
+    min-height: 60px;
+    display: none;
+    border: 1px solid #333;
+}
+
+#stepper.active, #ml-result.active, #sorting-visualization.active {
+    display: block;
+}
+
+/* Код алгоритму */
+pre.code-block {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    white-space: pre;
+    background: #181a1b;
+    color: #ffe16a;
+    border-radius: 8px;
+    padding: 15px 20px;
+    font-size: 1.05rem;
+    overflow-x: auto;
+    margin-bottom: 15px;
+    line-height: 1.4;
+    border-left: 4px solid #32b8eb;
+    tab-size: 4;
+}
+
+/* Кнопки кроків */
+.step-btn {
+    background: #32b8eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 18px;
+    margin: 6px 8px 6px 0;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.step-btn:hover {
+    background: #298fc2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(50, 184, 235, 0.3);
+}
+
+/* Дерево викликів */
+#call-tree {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(40, 44, 52, 0.8);
+    border-radius: 8px;
+    border-left: 4px solid #7BC8A4;
+}
+
+#call-tree pre {
+    font-family: 'Fira Code', monospace;
+    color: #9cdcfe;
+    margin: 10px 0;
+    font-size: 0.95rem;
+}
+
+/* Стилі для візуалізації сортування */
+#viz-title {
+    color: #85e5ff;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+#viz-description {
+    color: #aaa;
+    text-align: center;
+    margin: 10px 0;
+    font-size: 0.95rem;
+    font-style: italic;
+}
+
+#controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: rgba(40, 44, 52, 0.8);
+    border-radius: 10px;
+}
+
+.sort-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+    min-width: 160px;
+}
+
+.sort-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+}
+
+.sort-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #f2f2f2;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 15px;
+    border-radius: 8px;
+}
+
+.speed-control label {
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.speed-control input[type="range"] {
+    width: 150px;
+    height: 6px;
+    background: #444;
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.speed-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #32b8eb;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+#speedValue {
+    min-width: 60px;
+    font-weight: bold;
+    color: #ffd966;
+}
+
+#timer {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4CAF50;
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 8px;
+}
+
+.chart-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(40, 44, 52, 0.8);
+    border-radius: 10px;
+}
+
+#sorting-scene {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 15px;
+    background: #181a1b;
+    border: 1px solid #333;
+}
+
+/* Стилі для ML результату */
+#ml-result b {
+    color: #ffd966;
+}
+
+#ml-result i {
+    color: #aaa;
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    #ar-container {
+        padding: 8px 3vw;
+    }
+    
+    h1 {
+        font-size: 1.6rem;
+        margin: 12px 0;
+    }
+    
+    #controls {
+        flex-direction: column;
+        padding: 10px;
+    }
+    
+    .sort-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .speed-control {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .speed-control input[type="range"] {
+        width: 200px;
+    }
+    
+    #chart {
+        width: 100% !important;
+        max-width: 350px;
+    }
+    
+    pre.code-block {
+        font-size: 0.95rem;
+        padding: 12px 15px;
+    }
+    
+    #sorting-scene {
+        height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.4rem;
+    }
+    
+    #start-msg {
+        font-size: 1rem;
+    }
+    
+    .step-btn {
+        padding: 6px 14px;
+        font-size: 0.95rem;
+    }
+    
+    .sort-btn {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+    }
+    
+    #timer {
+        font-size: 1rem;
+    }
+}
